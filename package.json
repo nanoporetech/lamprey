@@ -1,0 +1,14 @@
+{
+  "name": "nanodesk",
+  "version": "0.1.0",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^1.4.15",
+    "electron-packager": "^8.5.2"
+  },
+  "dependencies": {
+    "zerorpc": "^0.9.7"
+  }
+}

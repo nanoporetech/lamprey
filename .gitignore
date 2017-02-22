@@ -1,0 +1,8 @@
+.Python
+bin/
+include/
+lib/
+nanodesk-darwin-x64/
+node_modules/
+pip-selfcheck.json
+pycalcdist/
