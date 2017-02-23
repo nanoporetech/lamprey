@@ -11,6 +11,12 @@ clean:
 	rm -rf ~/.node-gyp ~/.electron-gyp ./node_modules
 	rm -rf include lib .Python pip-selfcheck.json bin build
 
+deps_linux:
+	sudo apt-get install libzmq-dev virtualenv
+
+deps_mac:
+	brew install zmq
+
 deps: clean
 	npm_config_target=$(npm_config_target) npm_config_arch=$(npm_config_arch) npm_config_target_arch=$(npm_config_target_arch) npm_config_disturl=$(npm_config_disturl) npm_config_runtime=$(npm_config_runtime) npm_config_build_from_source=$(npm_config_build_from_source) npm install
 	virtualenv . --always-copy
@@ -19,7 +25,7 @@ deps: clean
 pack: deps
 	touch pycalcdist
 	rm -rf pycalcdist
-	pyinstaller api.spec
+	./bin/pyinstaller api.spec
 #	pyinstaller --onefile pycalc/api.py --distpath pycalcdist --add-binary="/usr/local/lib/libzmq.5.dylib:libzmq.5.dylib"
 #	rm -rf build/
 #	rm -rf api.spec

@@ -3,8 +3,6 @@
 from PyInstaller.utils.hooks import collect_dynamic_libs
 block_cipher = None
 
-print('libs'.collect_dynamic_libs('zmq'))
-
 a = Analysis(['pycalc/api.py'],
              pathex=['/Users/rmp/dev/ONT/nanodesk'],
              binaries=collect_dynamic_libs('zmq'),
