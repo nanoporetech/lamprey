@@ -42,7 +42,7 @@ const selectPort = () => {
     return pyPort
 }
 
-const PY_DIST_FOLDER = 'pycalcdist'
+const PY_DIST_FOLDER = 'dist'
 const PY_FOLDER = 'pycalc'
 const PY_MODULE = 'api' // without .py suffix
 

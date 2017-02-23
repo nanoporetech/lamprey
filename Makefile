@@ -9,18 +9,20 @@ all: pack
 
 clean:
 	rm -rf ~/.node-gyp ~/.electron-gyp ./node_modules
-	rm -rf include lib .Python pip-selfcheck.json bin api.spec build
+	rm -rf include lib .Python pip-selfcheck.json bin build
 
 deps: clean
 	npm_config_target=$(npm_config_target) npm_config_arch=$(npm_config_arch) npm_config_target_arch=$(npm_config_target_arch) npm_config_disturl=$(npm_config_disturl) npm_config_runtime=$(npm_config_runtime) npm_config_build_from_source=$(npm_config_build_from_source) npm install
 	virtualenv . --always-copy
-	pip install zerorpc
-	pip install pyinstaller
+	(source ./bin/activate ; pip install zerorpc ; pip install pyinstaller)
 
 pack: deps
 	touch pycalcdist
 	rm -rf pycalcdist
-	pyinstaller pycalc/api.py --distpath pycalcdist
-	rm -rf build/
-	rm -rf api.spec
+	pyinstaller api.spec
+#	pyinstaller --onefile pycalc/api.py --distpath pycalcdist --add-binary="/usr/local/lib/libzmq.5.dylib:libzmq.5.dylib"
+#	rm -rf build/
+#	rm -rf api.spec
+	touch nanodesk-darwin-x64
+	rm -rf nanodesk-darwin-x64
 	./node_modules/.bin/electron-packager . --overwrite --ignore="pycalc$$" --ignore="\.venv" --ignore="old-post-backup"
