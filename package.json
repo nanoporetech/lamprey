@@ -1,5 +1,5 @@
 {
-  "name": "nanodesk",
+  "name": "baserunner",
   "version": "0.1.0",
   "scripts": {
     "start": "electron ."
