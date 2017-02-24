@@ -4,7 +4,7 @@ from PyInstaller.utils.hooks import collect_dynamic_libs
 block_cipher = None
 
 a = Analysis(['pycalc/api.py'],
-             pathex=['/Users/rmp/dev/ONT/nanodesk'],
+             pathex=[],
              binaries=collect_dynamic_libs('zmq'),
              datas=[],
              hiddenimports=[],

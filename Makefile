@@ -14,7 +14,7 @@ all: pack
 
 clean:
 	touch .node-gyp
-	rm -rf ~/.node-gyp ~/.electron-gyp ./node_modules baserunner* include lib .Python pip-selfcheck.json bin build
+	rm -rf ~/.node-gyp ~/.electron-gyp ./node_modules baserunner* include lib .Python pip-selfcheck.json bin build dist
 
 deps_linux:
 	sudo apt-get install libzmq-dev virtualenv
@@ -22,15 +22,23 @@ deps_linux:
 deps_mac:
 	brew install zmq
 
-deps: clean
+deps_js:
 	npm_config_target=$(npm_config_target) npm_config_arch=$(npm_config_arch) npm_config_target_arch=$(npm_config_target_arch) npm_config_disturl=$(npm_config_disturl) npm_config_runtime=$(npm_config_runtime) npm_config_build_from_source=$(npm_config_build_from_source) npm install
-	virtualenv . --always-copy
-	(. ./bin/activate ; pip install zerorpc ; pip install pyinstaller)
 
-pack: deps
+deps_py:
+	virtualenv . --always-copy
+	(. ./bin/activate ; easy_install zerorpc ; easy_install pyinstaller)
+
+deps: clean
+	make deps_js deps_py
+
+py:
 	touch dist
 	rm -rf dist build
-	./bin/pyinstaller api.spec
+	(. bin/activate ; ./bin/pyinstaller api.spec)
+
+pack: deps
+	make py
 	touch nanodesk-darwin-x64
 	rm -rf nanodesk-*
 	./node_modules/.bin/electron-packager . --overwrite --ignore="pycalc$$" --ignore="\.venv" --ignore="old-post-backup"
