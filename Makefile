@@ -23,12 +23,9 @@ deps: clean
 	(source ./bin/activate ; pip install zerorpc ; pip install pyinstaller)
 
 pack: deps
-	touch pycalcdist
-	rm -rf pycalcdist
+	touch dist
+	rm -rf dist build
 	./bin/pyinstaller api.spec
-#	pyinstaller --onefile pycalc/api.py --distpath pycalcdist --add-binary="/usr/local/lib/libzmq.5.dylib:libzmq.5.dylib"
-#	rm -rf build/
-#	rm -rf api.spec
 	touch nanodesk-darwin-x64
-	rm -rf nanodesk-darwin-x64
+	rm -rf nanodesk-*
 	./node_modules/.bin/electron-packager . --overwrite --ignore="pycalc$$" --ignore="\.venv" --ignore="old-post-backup"
