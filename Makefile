@@ -5,6 +5,11 @@ npm_config_disturl=https://atom.io/download/electron
 npm_config_runtime=electron
 npm_config_build_from_source=true
 
+MAJOR ?= 0
+MINOR ?= 0
+SUB   ?= 0
+PATCH ?= $CI_BUILD_ID
+
 all: pack
 
 clean:
@@ -30,3 +35,4 @@ pack: deps
 	rm -rf nanodesk-*
 	./node_modules/.bin/electron-packager . --overwrite --ignore="pycalc$$" --ignore="\.venv" --ignore="old-post-backup"
 	cp externals/$(shell uname -s)/* baserunner-*/
+	mv baserunner-* baserunner-$(shell uname -s)-$(MAJOR).$(MINOR).$(SUB).$(PATCH)
