@@ -14,7 +14,7 @@ all: pack
 
 clean:
 	touch .node-gyp
-	rm -rf ~/.node-gyp ~/.electron-gyp ./node_modules baserunner* include lib .Python pip-selfcheck.json bin build dist
+	rm -rf ~/.node-gyp ~/.electron-gyp ./node_modules baserunner* include lib .Python pip-selfcheck.json bin build
 
 deps_linux:
 	sudo apt-get install libzmq-dev virtualenv
@@ -27,7 +27,7 @@ deps_js:
 
 deps_py:
 	virtualenv . --always-copy
-	(. ./bin/activate ; easy_install zerorpc ; easy_install pyinstaller)
+	(. ./bin/activate ; pip install zerorpc ; pip install pyinstaller)
 
 deps: clean
 	make deps_js deps_py

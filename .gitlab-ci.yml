@@ -15,7 +15,7 @@ pack:
     - curl -sL https://deb.nodesource.com/setup_6.x > nodejs-repo
     - chmod +x nodejs-repo
     - ./nodejs-repo
-    - apt-get install -y --force-yes nodejs libzmq-dev build-essential git python-pip libpython-dev
+    - apt-get install -y --force-yes nodejs build-essential git python-pip libpython-dev pkg-config
     - pip install virtualenv
     - make pack
     - tar -czvf `ls -d baserunner-*`.tar.gz baserunner-*
