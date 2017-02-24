@@ -25,7 +25,7 @@ deps_js:
 deps_py:
 #	virtualenv . --no-site-packages --always-copy
 #	(. ./bin/activate ; pip install zerorpc ; pip install pyinstaller ; pip install h5py ; pip install myriad)
-	pip install --user zerorpc pyinstaller h5py myriad
+	pip install --user zerorpc pyinstaller h5py myriad numpy
 
 deps: clean
 	git submodule update --init --recursive
@@ -35,7 +35,7 @@ py:
 	touch dist
 	rm -rf dist build
 	cd externals/nanonet ; python setup.py install --user
-	PATH=$(HOME)/.local/bin:$(PATH) pyinstaller api.spec
+	PATH=$(HOME)/.local/bin:$(HOME)/Library/Python/2.7/bin:$(PATH) pyinstaller api.spec
 
 pack: deps
 	make py
