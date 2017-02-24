@@ -8,7 +8,7 @@ npm_config_build_from_source=true
 MAJOR ?= 0
 MINOR ?= 0
 SUB   ?= 0
-PATCH ?= $CI_BUILD_ID
+PATCH ?= 1
 
 all: pack
 

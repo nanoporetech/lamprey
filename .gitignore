@@ -6,3 +6,5 @@ nanodesk-darwin-x64/
 node_modules/
 pip-selfcheck.json
 dist/
+build
+.node-gyp

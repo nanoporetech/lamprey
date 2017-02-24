@@ -1,15 +1,7 @@
 image: docker-registry.oxfordnanolabs.local:5000/ont-base-ubuntu:14.04
 
 variables:
-  REPO_DEVELOPMENT: "trusty-unstable"
-  REPO_STAGING:     "trusty-testing"
-  REPO_PRODUCTION:  "trusty-stable"
-  LC_BASENAME:      "gitlab-portal-lc"
-  PATCH:            $CI_BUILD_ID
-  TAG_NAME:         "portal-web"
-  TAG_PROJECT:      "portal"
-  TAG_TEAM:         "metrichor"
-  TAG_OWNER:        "gitlab-ci"
+  PATCH: $CI_BUILD_ID
 
 stages:
   - pack
