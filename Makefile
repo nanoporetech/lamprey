@@ -34,7 +34,7 @@ deps: clean
 py:
 	touch dist
 	rm -rf dist build
-	cd externals/nanonet ; python setup.py install --user
+	cd externals/nanonet ; python setup.py develop --user
 	PATH=$(HOME)/.local/bin:$(HOME)/Library/Python/2.7/bin:$(PATH) pyinstaller api.spec
 
 pack: deps
