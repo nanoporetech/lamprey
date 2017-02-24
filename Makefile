@@ -14,7 +14,7 @@ all: pack
 
 clean:
 	touch .node-gyp
-	rm -rf ~/.node-gyp ~/.electron-gyp ./node_modules baserunner* include lib .Python pip-selfcheck.json bin build
+	rm -rf ~/.node-gyp ~/.electron-gyp ./node_modules baserunner* include lib .Python pip-selfcheck.json bin build externals/nanonet
 
 deps_mac:
 	brew install zmq
