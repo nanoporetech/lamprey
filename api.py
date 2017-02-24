@@ -7,9 +7,9 @@ class RunnerApi(object):
     def process_read(self, filename):
         """based on the input text, return the int result"""
         try:
-            return process_read(filename)
+            return process_read("./externals/nanonet/build/lib.macosx-10.12-x86_64-2.7/nanonet/data/r9_template.npy", filename)
         except Exception as e:
-            return 0.0
+            return e
     def echo(self, text):
         """echo any text"""
         return text
