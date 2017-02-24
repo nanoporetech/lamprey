@@ -30,7 +30,7 @@ deps_js:
 
 deps_py:
 	virtualenv . --always-copy
-	(. ./bin/activate ; pip install zerorpc ; pip install pyinstaller)
+	(. ./bin/activate ; pip install zerorpc ; pip install pyinstaller ; pip install h5py ; pip install myriad)
 
 deps: clean
 	make deps_js deps_py
@@ -44,6 +44,6 @@ pack: deps
 	make py
 	touch nanodesk-darwin-x64
 	rm -rf nanodesk-*
-	./node_modules/.bin/electron-packager . --overwrite --ignore="pycalc$$" --ignore="\.venv" --ignore="old-post-backup"
+	./node_modules/.bin/electron-packager . --overwrite --ignore="pycalc$$" --ignore="\.venv" --ignore="old-post-backup" --ignore="externals"
 	cp externals/$(shell uname -s)/* baserunner-*/
 	mv baserunner-* baserunner-$(shell uname -s)-$(MAJOR).$(MINOR).$(SUB).$(PATCH)
