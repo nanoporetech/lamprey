@@ -39,7 +39,7 @@ deps: clean
 py:
 	touch dist
 	rm -rf dist build
-	(. bin/activate ; cd nanonet ; python setup.py build)
+	(. bin/activate ; cd externals/nanonet ; python setup.py build)
 	(. bin/activate ; ./bin/pyinstaller api.spec)
 
 pack: deps
