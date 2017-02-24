@@ -33,6 +33,7 @@ deps_py:
 	(. ./bin/activate ; pip install zerorpc ; pip install pyinstaller ; pip install h5py ; pip install myriad)
 
 deps: clean
+	git submodule update --init --recursive
 	make deps_js deps_py
 
 py:
