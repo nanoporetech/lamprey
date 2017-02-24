@@ -16,12 +16,6 @@ clean:
 	touch .node-gyp
 	rm -rf ~/.node-gyp ~/.electron-gyp ./node_modules baserunner* include lib .Python pip-selfcheck.json bin build
 
-deps_linux14:
-	sudo pip install virtualenv
-
-deps_linux16:
-	sudo apt-get install virtualenv
-
 deps_mac:
 	brew install zmq
 
@@ -29,8 +23,9 @@ deps_js:
 	npm_config_target=$(npm_config_target) npm_config_arch=$(npm_config_arch) npm_config_target_arch=$(npm_config_target_arch) npm_config_disturl=$(npm_config_disturl) npm_config_runtime=$(npm_config_runtime) npm_config_build_from_source=$(npm_config_build_from_source) npm install
 
 deps_py:
-	virtualenv . --always-copy
-	(. ./bin/activate ; pip install zerorpc ; pip install pyinstaller ; pip install h5py ; pip install myriad)
+#	virtualenv . --no-site-packages --always-copy
+#	(. ./bin/activate ; pip install zerorpc ; pip install pyinstaller ; pip install h5py ; pip install myriad)
+	pip install --user zerorpc pyinstaller h5py myriad
 
 deps: clean
 	git submodule update --init --recursive
@@ -39,8 +34,8 @@ deps: clean
 py:
 	touch dist
 	rm -rf dist build
-	(. bin/activate ; cd externals/nanonet ; python setup.py build)
-	(. bin/activate ; ./bin/pyinstaller api.spec)
+	cd externals/nanonet ; python setup.py build
+	./bin/pyinstaller api.spec
 
 pack: deps
 	make py

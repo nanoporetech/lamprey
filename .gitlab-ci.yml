@@ -16,7 +16,6 @@ pack:
     - chmod +x nodejs-repo
     - ./nodejs-repo
     - apt-get install -y --force-yes nodejs libzmq-dev build-essential git python-pip libpython-dev pkg-config libhdf5-dev
-    - pip install virtualenv
     - make pack
     - tar -czvf `ls -d baserunner-*`.tar.gz baserunner-*
   artifacts:
