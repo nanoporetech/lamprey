@@ -16,8 +16,11 @@ clean:
 	touch .node-gyp
 	rm -rf ~/.node-gyp ~/.electron-gyp ./node_modules baserunner* include lib .Python pip-selfcheck.json bin build
 
-deps_linux:
-	sudo apt-get install libzmq-dev virtualenv
+deps_linux14:
+	sudo pip install virtualenv
+
+deps_linux16:
+	sudo apt-get install virtualenv
 
 deps_mac:
 	brew install zmq
