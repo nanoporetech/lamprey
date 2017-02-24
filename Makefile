@@ -38,12 +38,13 @@ deps: clean
 py:
 	touch dist
 	rm -rf dist build
+	(. bin/activate ; cd nanonet ; python setup.py build)
 	(. bin/activate ; ./bin/pyinstaller api.spec)
 
 pack: deps
 	make py
 	touch nanodesk-darwin-x64
 	rm -rf nanodesk-*
-	./node_modules/.bin/electron-packager . --overwrite --ignore="pycalc$$" --ignore="\.venv" --ignore="old-post-backup" --ignore="externals"
+	./node_modules/.bin/electron-packager . --overwrite --ignore="\.venv" --ignore="old-post-backup" --ignore="externals"
 	cp externals/$(shell uname -s)/* baserunner-*/
 	mv baserunner-* baserunner-$(shell uname -s)-$(MAJOR).$(MINOR).$(SUB).$(PATCH)

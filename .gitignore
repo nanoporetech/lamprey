@@ -2,7 +2,7 @@
 bin/
 include/
 lib/
-nanodesk-darwin-x64/
+baserunner-*
 node_modules/
 pip-selfcheck.json
 dist/
