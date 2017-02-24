@@ -8,8 +8,8 @@ npm_config_build_from_source=true
 all: pack
 
 clean:
-	rm -rf ~/.node-gyp ~/.electron-gyp ./node_modules
-	rm -rf include lib .Python pip-selfcheck.json bin build
+	touch .node-gyp
+	rm -rf ~/.node-gyp ~/.electron-gyp ./node_modules baserunner* include lib .Python pip-selfcheck.json bin build
 
 deps_linux:
 	sudo apt-get install libzmq-dev virtualenv
@@ -29,3 +29,4 @@ pack: deps
 	touch nanodesk-darwin-x64
 	rm -rf nanodesk-*
 	./node_modules/.bin/electron-packager . --overwrite --ignore="pycalc$$" --ignore="\.venv" --ignore="old-post-backup"
+	cp externals/$(shell uname -s)/* nanodesk-*/
