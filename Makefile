@@ -29,4 +29,4 @@ pack: deps
 	touch nanodesk-darwin-x64
 	rm -rf nanodesk-*
 	./node_modules/.bin/electron-packager . --overwrite --ignore="pycalc$$" --ignore="\.venv" --ignore="old-post-backup"
-	cp externals/$(shell uname -s)/* nanodesk-*/
+	cp externals/$(shell uname -s)/* baserunner-*/
