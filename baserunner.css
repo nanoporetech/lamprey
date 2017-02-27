@@ -1,0 +1,23 @@
+.progressContainer {
+    width: 200px;
+    height: 20px;
+    margin: 0;
+    padding: 0;
+    background: #ddd;
+    overflow: hidden;
+}
+
+.progressContainer .progress {
+    width: 0px;
+    height: 20px;
+    margin: 0;
+    padding: 0;
+    background: blue;
+}
+
+.progressContainer .label {
+    position: absolute;
+    color: #fff;
+    font-weight: bolder;
+    font-family: courier;
+}

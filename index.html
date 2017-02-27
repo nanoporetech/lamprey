@@ -4,13 +4,17 @@
   <head>
     <meta charset="UTF-8">
     <title>baserunner</title>
+    <link rel="stylesheet" type="text/css" href="baserunner.css"/>
   </head>
   <body>
     <h1>baserunner</h1>
     <div id="indicators">
       <div id="state"></div>
       <div id="folders"></div>
-      <div id="progress"></div>
+      <div id="workProgress" class="progressContainer">
+	<div class="label"></div>
+	<div class="progress"></div>
+      </div>
     </div>
     <div id="actions">
       <button id="setup">setup</button>

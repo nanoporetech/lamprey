@@ -1,9 +1,9 @@
 // main.js
 
 const electron = require('electron')
-const app = electron.app
+const path     = require('path')
+const app      = electron.app
 const BrowserWindow = electron.BrowserWindow
-const path = require('path')
 
 let mainWindow = null
 const createWindow = () => {

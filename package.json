@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "chokidar": "^1.6.1",
+    "queue": "^4.2.1",
     "zerorpc": "^0.9.7"
   }
 }
