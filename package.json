@@ -5,10 +5,12 @@
     "start": "electron ."
   },
   "devDependencies": {
+    "photon": "git+https://github.com/connors/photon.git",
     "electron": "^1.4.15",
     "electron-packager": "^8.5.2"
   },
   "dependencies": {
+    "chokidar": "^1.6.1",
     "zerorpc": "^0.9.7"
   }
 }

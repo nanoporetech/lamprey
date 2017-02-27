@@ -3,17 +3,23 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>Hello Calculator!</title>
+    <title>baserunner</title>
   </head>
   <body>
-    <h1>Hello Calculator!</h1>
-    <p>Input something like <code>1 + 1</code>.</p>
-    <p>This calculator supports <code>+-*/^()</code>,
-    whitespaces, and integers and floating numbers.</p>
-    <input id="formula" value="1 + 2.0 * 3.1 / (4 ^ 5.6)"></input>
-    <div id="result"></div>
+    <h1>baserunner</h1>
+    <div id="indicators">
+      <div id="state"></div>
+      <div id="folders"></div>
+      <div id="progress"></div>
+    </div>
+    <div id="actions">
+      <button id="setup">setup</button>
+      <button id="start">start</button>
+      <button id="stop">stop</button>
+    </div>
+    <div><pre id="log"></pre></div>
   </body>
   <script>
-    require('./renderer.js')
+   require('./renderer.js')
   </script>
 </html>

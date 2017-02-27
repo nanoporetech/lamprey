@@ -7,16 +7,17 @@ const path = require('path')
 
 let mainWindow = null
 const createWindow = () => {
-  mainWindow = new BrowserWindow({width: 800, height: 600})
-  mainWindow.loadURL(require('url').format({
-    pathname: path.join(__dirname, 'index.html'),
-    protocol: 'file:',
-    slashes: true
-  }))
-  mainWindow.webContents.openDevTools()
-  mainWindow.on('closed', () => {
-    mainWindow = null
-  })
+    mainWindow = new BrowserWindow({width: 800, height: 600})
+    mainWindow.loadURL(require('url').format({
+	pathname: path.join(__dirname, 'index.html'),
+	protocol: 'file:',
+	slashes: true
+    }))
+
+    mainWindow.webContents.openDevTools()
+    mainWindow.on('closed', () => {
+	mainWindow = null
+    })
 }
 
 app.on('ready', createWindow);
@@ -43,7 +44,7 @@ const selectPort = () => {
 }
 
 const PY_DIST_FOLDER = 'dist'
-const PY_FOLDER = 'pycalc'
+const PY_FOLDER = ''
 const PY_MODULE = 'api' // without .py suffix
 
 const guessPackaged = () => {
