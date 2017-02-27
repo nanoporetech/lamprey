@@ -6,40 +6,52 @@ const path     = require("path")
 const queue    = require("queue");
 const electron = require('electron')
 const remote   = electron.remote
+const bunyan   = require('bunyan').createLogger({
+    name: "baserunner",
+    streams: [{
+        path: 'baserunner.log',
+    }]
+});
 
+/* zerorpc setup */
 let client = new zerorpc.Client()
 client.connect("tcp://127.0.0.1:4242")
 
+/* logging setup */
 let logTranscript = document.querySelector("#log")
-logTranscript.innerHTML=(new Array(10)).join("\n");
+logTranscript.innerHTML = (new Array(10)).join("\n");
+
 const log = (str) => {
-    let tmp = logTranscript.innerHTML;
-    logTranscript.innerHTML = logTranscript.innerHTML.split(/\n/).splice(1,10).join("\n") + str + "\n"
+    let tmp                 = logTranscript.innerHTML;
+    logTranscript.innerHTML = logTranscript.innerHTML.split(/\n/).splice(1, 10).join("\n") + str + "\n"
+    bunyan.info(str)
 }
 
-let stateIndicator = document.querySelector("#state")
-stateIndicator.innerHTML="stopped"
+/* progress indicator setup */
+let stateIndicator       = document.querySelector("#state")
+stateIndicator.innerHTML = "stopped"
 
+/* setup button action */
 let setup = document.querySelector("#setup")
 let folderSelection = null
 setup.addEventListener('click', () => {
     let selection=remote.dialog.showOpenDialog(null, {
 	properties: ['openDirectory']
     })
+
     if(!selection) {
 	return
     }
 
     folderSelection=selection
     let folder_indicator = document.querySelector("#folders")
-    folder_indicator.innerHTML=folderSelection.join(",");
+    folder_indicator.innerHTML = folderSelection.join(",");
 })
 
 let workWaiting = new Array()
 let workSuccess = 0
 let workFailure = 0
 let progress    = document.querySelector("#progress")
-let start       = document.querySelector("#start")
 let watcher     = null;
 let workQueue   = queue({
     concurrency: 1,
@@ -47,7 +59,7 @@ let workQueue   = queue({
 })
 
 const workIndicatorUpdate = () => {
-    let perc = 100 * (workSuccess + workFailure) / (workQueue.length + workSuccess + workFailure)
+    let perc  = 100 * (workSuccess + workFailure) / (workQueue.length + workSuccess + workFailure)
     let percS = 100 * (workSuccess) / (workQueue.length + workSuccess + workFailure)
     let percF = 100 * (workFailure) / (workQueue.length + workSuccess + workFailure)
 //    let bar  = document.querySelector("#workProgress .progress");
@@ -62,7 +74,7 @@ const workIndicatorUpdate = () => {
     let pxwF  = barF.parentElement.offsetWidth * percF / 100
     barF.style.setProperty('width', pxwF + "px");
 
-    document.querySelector("#workProgress .label").innerHTML = perc.toFixed(2) + "%";
+    document.querySelector("#workProgress .label").innerHTML = perc.toFixed(2) + "% (" + workSuccess + " : " + workFailure + " : " + workWaiting.length + ")";
 }
 
 let workIndicatorInterval = null
@@ -71,7 +83,7 @@ const checkWork = (qcb) => {
 
     let cb = () => {
 	workIndicatorUpdate()
-	workQueue.push(checkWork)
+	workQueue.push(checkWork) // self-perpetuating
 	qcb()
     }
 
@@ -100,6 +112,8 @@ const checkWork = (qcb) => {
     }
 }
 
+/* start button action */
+let start = document.querySelector("#start")
 start.addEventListener('click', () => {
     if(!folderSelection) {
 	alert("please set up a folder")
@@ -123,16 +137,17 @@ start.addEventListener('click', () => {
 	depth: 2,
 	ignored: /(^|[\/\\])\../
     })
-	.on('all', (event, path) => {
-	    log("queued " + path);
+	.on('add', (path, stats) => {
+	    log(`queued ${path}`);
 	    workWaiting.push(path)
 	});
-    stateIndicator.innerHTML="running"
+    stateIndicator.innerHTML = "running"
 
     /* kick off */
     workQueue.push(checkWork)
 })
 
+/* stop button action */
 let stop = document.querySelector("#stop")
 stop.addEventListener('click', () => {
     if(!watcher) {

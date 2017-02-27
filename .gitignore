@@ -8,4 +8,4 @@ pip-selfcheck.json
 dist/
 build
 .node-gyp
-pycalc/calc.pyc
+baserunner.log
