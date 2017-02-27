@@ -5,11 +5,11 @@ from nanonet.nanonetcall import process_read as process_read
 
 class RunnerApi(object):
     def process_read(self, filename):
-        """based on the input text, return the int result"""
+        """basecall a given filename"""
         try:
-            return process_read("./externals/nanonet/build/lib.macosx-10.12-x86_64-2.7/nanonet/data/r9_template.npy", filename)
+            return process_read("/Users/rmp/dev/ONT/baserunner/externals/nanonet/nanonet/data/r9_template.npy", filename, section="template")
         except Exception as e:
-            return e
+            return str(e)
     def echo(self, text):
         """echo any text"""
         return text

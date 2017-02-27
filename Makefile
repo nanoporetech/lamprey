@@ -32,10 +32,8 @@ deps: clean
 	make deps_js deps_py
 
 py:
-	touch dist
-	rm -rf dist build
 	cd externals/nanonet ; python setup.py develop --user
-	PATH=$(HOME)/.local/bin:$(HOME)/Library/Python/2.7/bin:$(PATH) pyinstaller api.spec
+	PATH=$(HOME)/.local/bin:$(HOME)/Library/Python/2.7/bin:$(PATH) pyinstaller --clean --log-level DEBUG api.spec
 
 pack: deps
 	make py
