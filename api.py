@@ -8,10 +8,11 @@ class RunnerApi(object):
         """basecall a given filename"""
         try:
             [(fname, (seq, qual), score, len_features), (network_time, decode_time)] = process_read("/Users/rmp/dev/ONT/baserunner/externals/nanonet/nanonet/data/r9_template.npy", filename, section="template")
-            fastq = "@{}\n{}\n+{}\n".format(fname, seq, qual)
-            return fastq
+            if fname is not None:
+                fastq = "@{}\n{}\n+{}\n".format(fname, seq, qual)
+            return [fastq]
         except Exception as e:
-            return str(e)
+            return [None, str(e)]
     def echo(self, text):
         """echo any text"""
         return text
