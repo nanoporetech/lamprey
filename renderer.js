@@ -48,9 +48,20 @@ let workQueue   = queue({
 
 const workIndicatorUpdate = () => {
     let perc = 100 * (workSuccess + workFailure) / (workQueue.length + workSuccess + workFailure)
-    let bar  = document.querySelector("#workProgress .progress");
-    let pxw  = bar.parentElement.offsetWidth * perc / 100
-    bar.style.setProperty('width', pxw+"px");
+    let percS = 100 * (workSuccess) / (workQueue.length + workSuccess + workFailure)
+    let percF = 100 * (workFailure) / (workQueue.length + workSuccess + workFailure)
+//    let bar  = document.querySelector("#workProgress .progress");
+//    let pxw  = bar.parentElement.offsetWidth * perc / 100
+//    bar.style.setProperty('width', pxw + "px");
+
+    let barS  = document.querySelector("#workProgress .success");
+    let pxwS  = barS.parentElement.offsetWidth * percS / 100
+    barS.style.setProperty('width', pxwS + "px");
+
+    let barF  = document.querySelector("#workProgress .failure");
+    let pxwF  = barF.parentElement.offsetWidth * percF / 100
+    barF.style.setProperty('width', pxwF + "px");
+
     document.querySelector("#workProgress .label").innerHTML = perc.toFixed(2) + "%";
 }
 
@@ -128,10 +139,11 @@ stop.addEventListener('click', () => {
 	alert("already stopped")
 	return
     }
+
     watcher.close()
     stateIndicator.innerHTML="stopped"
     workQueue.end("stopping")
-
+    workWaiting=[]
     workIndicatorUpdate()
     clearInterval(workIndicatorInterval)
 

@@ -15,6 +15,26 @@
     background: blue;
 }
 
+.progressContainer .success {
+    width: 0px;
+    height: 20px;
+    margin: 0;
+    padding: 0;
+    background: green;
+    float:left;
+    display:block;
+}
+
+.progressContainer .failure {
+    width: 0px;
+    height: 20px;
+    margin: 0;
+    padding: 0;
+    background: red;
+    float:left;
+    display:block;
+}
+
 .progressContainer .label {
     position: absolute;
     color: #fff;
