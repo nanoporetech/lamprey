@@ -23,9 +23,7 @@ deps_js:
 	npm_config_target=$(npm_config_target) npm_config_arch=$(npm_config_arch) npm_config_target_arch=$(npm_config_target_arch) npm_config_disturl=$(npm_config_disturl) npm_config_runtime=$(npm_config_runtime) npm_config_build_from_source=$(npm_config_build_from_source) npm install
 
 deps_py:
-#	virtualenv . --no-site-packages --always-copy
-#	(. ./bin/activate ; pip install zerorpc ; pip install pyinstaller ; pip install h5py ; pip install myriad)
-	pip install --user zerorpc pyinstaller myriad
+	pip install --user zerorpc pyinstaller myriad h5py
 
 deps: clean
 	git submodule update --init --recursive

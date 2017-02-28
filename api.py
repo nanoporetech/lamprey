@@ -9,7 +9,7 @@ class RunnerApi(object):
         try:
             [(fname, (seq, qual), score, len_features), (network_time, decode_time)] = process_read("/Users/rmp/dev/ONT/baserunner/externals/nanonet/nanonet/data/r9_template.npy", filename, section="template")
             if fname is not None:
-                fastq = "@{}\n{}\n+{}\n".format(fname, seq, qual)
+                fastq = "@{}\n{}\n+\n{}\n".format(fname, seq, qual)
             return [fastq]
         except Exception as e:
             return [None, str(e)]
