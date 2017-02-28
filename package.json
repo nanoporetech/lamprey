@@ -12,6 +12,7 @@
   "dependencies": {
     "bunyan": "^1.8.5",
     "chokidar": "^1.6.1",
+    "node-getopt": "^0.2.3",
     "queue": "^4.2.1",
     "zerorpc": "^0.9.7"
   }

@@ -8,10 +8,13 @@ const electron = require('electron')
 const remote   = electron.remote
 const bunyan   = require('bunyan')
 const fs       = require("fs")
-const logstream = bunyan.createLogger({
+
+let logfile    = "baserunner.log"
+let fastqfile  = "out.fastq"
+let logstream  = bunyan.createLogger({
     name: "baserunner",
     streams: [{
-        path: 'baserunner.log',
+        path: logfile
     }]
 })
 let fastqstream = null
@@ -34,11 +37,19 @@ const log = (str) => {
 let stateIndicator       = document.querySelector("#state")
 stateIndicator.innerHTML = "stopped"
 
+const setupSelectionAction = (selection) => {
+    folderSelection            = selection
+    let folder_indicator       = document.querySelector("#folders")
+    folder_indicator.innerHTML = folderSelection //.join(",")
+    start.removeAttribute("disabled", "disabled")
+    log("selected " + folderSelection)
+}
+
 /* setup button action */
 let setup = document.querySelector("#setup")
 let folderSelection = null
 setup.addEventListener('click', () => {
-    let selection=remote.dialog.showOpenDialog(null, {
+    let selection = remote.dialog.showOpenDialog(null, {
 	properties: ['openDirectory']
     })
 
@@ -46,9 +57,7 @@ setup.addEventListener('click', () => {
 	return
     }
 
-    folderSelection=selection
-    let folder_indicator = document.querySelector("#folders")
-    folder_indicator.innerHTML = folderSelection.join(",")
+    setupSelectionAction(selection[0]) // only keep the first selection
 })
 
 let workWaiting = new Array()
@@ -80,23 +89,30 @@ const workIndicatorUpdate = () => {
     document.querySelector("#workProgress .label").innerHTML = perc.toFixed(2) + "% (" + workSuccess + " : " + workFailure + " : " + workWaiting.length + ")"
 }
 
+const short_path = (str) => {
+    return str.replace(folderSelection,"").replace(/^\/?/,"")
+}
+
 let workIndicatorInterval = null
 
 const checkWork = (qcb) => {
 
     let cb = () => {
 	workIndicatorUpdate()
-	workQueue.push(checkWork) // self-perpetuating
+	if(stateIndicator.innerHTML !== "stopped") {
+	    workQueue.push(checkWork) // self-perpetuating
+	}
 	qcb()
     }
 
     let len = workWaiting.length
     if(len) {
 	let path = workWaiting.shift()
-	log("begin job " + path)
+	log("begin " + short_path(path))
 	client.invoke("process_read", path, (error, res) => {
 	    if(error) {
-		log("error job " + path)
+		log("error " + short_path(path))
+		log("message " + error)
 		console.error(error)
 		workFailure++
 		return cb()
@@ -105,10 +121,10 @@ const checkWork = (qcb) => {
 	    let fastq   = res[0];
 	    let failure = res[1];
 	    if(failure) {
-		log(failure.toString() + " " + path)
+		log(failure.toString() + " " + short_path(path))
 		workFailure++
 	    } else {
-		log("end job " + path)
+		log("end " + short_path(path))
 		fastqstream.write(fastq.toString())
 		workSuccess++
 	    }
@@ -124,15 +140,14 @@ const checkWork = (qcb) => {
 }
 
 /* start button action */
-let start = document.querySelector("#start")
-start.addEventListener('click', () => {
+const startAction = () => {
     if(!folderSelection) {
 	alert("please set up a folder")
 	return
     }
     log("selected " + folderSelection)
 
-    fastqstream = fs.createWriteStream('out.fastq')
+    fastqstream = fs.createWriteStream(fastqfile)
     workDone    = 0
     workFailed  = 0
     workIndicatorInterval = setInterval(workIndicatorUpdate, 5000)
@@ -141,7 +156,7 @@ start.addEventListener('click', () => {
     start.setAttribute("disabled","disabled")
     stop.removeAttribute("disabled")
 
-    let tmp = folderSelection.map(function(o) {
+    let tmp = [folderSelection].map(function(o) {
 	return path.join(o, "**", "*.fast5")
     })
 
@@ -150,36 +165,63 @@ start.addEventListener('click', () => {
 	ignored: /(^|[\/\\])\../
     })
 	.on('add', (path, stats) => {
-	    log(`queued ${path}`)
+	    log("queued " + short_path(path))
 	    workWaiting.push(path)
 	})
     stateIndicator.innerHTML = "running"
 
     /* kick off */
     checkWork(() => { })
-})
+}
 
 /* stop button action */
-let stop = document.querySelector("#stop")
-stop.addEventListener('click', () => {
+const stopAction = () => {
     if(!watcher) {
 	alert("already stopped")
 	return
     }
 
+    log("stopping file watcher")
     watcher.close()
-    stateIndicator.innerHTML="stopped"
+
+    log("stopping workers")
     workQueue.end("stopping")
+
+    log("emptying queue")
     workWaiting=[]
+
+    log("stopping indicators")
     workIndicatorUpdate()
     clearInterval(workIndicatorInterval)
 
     setup.removeAttribute("disabled")
     start.removeAttribute("disabled")
     stop.setAttribute("disabled", "disabled")
-    fastqstream.end()
-})
 
+    log("closing fastq stream")
+    fastqstream.end()
+
+    stateIndicator.innerHTML="stopped"
+    log("stopped")
+}
+
+let start = document.querySelector("#start")
+start.addEventListener('click', startAction)
+
+let stop = document.querySelector("#stop")
+stop.addEventListener('click', stopAction)
+
+/* initial button state */
 setup.removeAttribute("disabled")
-start.removeAttribute("disabled")
+start.setAttribute("disabled","disabled")
 stop.setAttribute("disabled","disabled")
+
+/* commandline arg handling */
+let opts = remote.getCurrentWindow().opts
+if(opts.options.input) {
+    setupSelectionAction(opts.options.input)
+}
+
+if(opts.options.autostart) {
+    startAction()
+}

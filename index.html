@@ -9,13 +9,18 @@
   <body>
     <h1>baserunner</h1>
     <div id="indicators">
-      <div id="state"></div>
-      <div id="folders"></div>
-      <div id="workProgress" class="progressContainer">
-	<div class="label"></div>
-	<!-- div class="progress"></div-->
-	<div class="success"></div>
-	<div class="failure"></div>
+      <div id="states">
+	<div id="stateContainer"><div>State: </div><div id="state"></div></div>
+	<div id="workProgress" class="progressContainer">
+	  <div class="label"></div>
+	  <!-- div class="progress"></div-->
+	  <div class="success"></div>
+	  <div class="failure"></div>
+	</div>
+      </div>
+      <div id="folderContainer">
+	<div>Folder: </div>
+	<div id="folders">unset</div>
       </div>
     </div>
     <div id="actions">
@@ -23,7 +28,12 @@
       <button id="start">start</button>
       <button id="stop">stop</button>
     </div>
-    <div><pre id="log"></pre></div>
+    <div id="logContainer">
+      <fieldset>
+	<legend>Details</legend>
+	<pre id="log"></pre>
+      </fieldset>
+    </div>
   </body>
   <script>
    require('./renderer.js')

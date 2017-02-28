@@ -1,20 +1,40 @@
 // main.js
 
-const electron = require('electron')
-const path     = require('path')
-const app      = electron.app
+const electron      = require('electron')
+const path          = require('path')
+const getopt        = require('node-getopt')
+const app           = electron.app
 const BrowserWindow = electron.BrowserWindow
+
+var opts = getopt.create([
+    ["h", "help",      "This help"],
+    ["i", "input=ARG", "input folder"],
+    ["a", "autostart", "autostart"],
+])
+    .bindHelp()
+    .parseSystem()
+
+if(opts.options.autostart && !opts.options.input) {
+    console.log("Cannot autostart without an input folder")
+    process.exit()
+}
 
 let mainWindow = null
 const createWindow = () => {
-    mainWindow = new BrowserWindow({width: 800, height: 600})
+    mainWindow = new BrowserWindow({
+	width: 1000,
+	height: 400,
+	resizable: false
+    })
     mainWindow.loadURL(require('url').format({
 	pathname: path.join(__dirname, 'index.html'),
 	protocol: 'file:',
 	slashes: true
     }))
 
-    mainWindow.webContents.openDevTools()
+    // pass commandline options
+    mainWindow.opts = opts
+//    mainWindow.webContents.openDevTools()
     mainWindow.on('closed', () => {
 	mainWindow = null
     })
