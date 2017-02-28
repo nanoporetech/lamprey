@@ -13,7 +13,7 @@ PATCH ?= 1
 all: pack
 
 clean:
-	touch .node-gyp
+	touch node_modules
 	rm -rf ~/.node-gyp ~/.electron-gyp ./node_modules baserunner-* include lib .Python pip-selfcheck.json bin build externals/nanonet
 
 deps_mac:
