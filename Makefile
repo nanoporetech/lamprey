@@ -31,7 +31,7 @@ deps: clean
 
 py:
 	cd externals/nanonet ; python setup.py develop --user
-	PATH=$(HOME)/.local/bin:$(HOME)/Library/Python/2.7/bin:$(PATH) pyinstaller --clean --log-level DEBUG api.spec
+#	PATH=$(HOME)/.local/bin:$(HOME)/Library/Python/2.7/bin:$(PATH) pyinstaller --clean --log-level DEBUG api.spec
 
 pack: deps
 	make py

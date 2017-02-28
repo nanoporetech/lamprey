@@ -9,9 +9,12 @@ const remote   = electron.remote
 const bunyan   = require('bunyan')
 const fs       = require("fs")
 
-let logfile    = "baserunner.log"
-let fastqfile  = "out.fastq"
-let logstream  = bunyan.createLogger({
+let opts        = remote.getCurrentWindow().opts
+let concurrency = opts.options.concurrency ? opts.options.concurrency : 1
+let watchDepth  = opts.options.depth       ? opts.options.depth : 2
+let logfile     = opts.options.log         ? opts.options.log   : "baserunner.log"
+let fastqfile   = opts.options.ofq         ? opts.options.ofq   : "out.fastq"
+let logstream   = bunyan.createLogger({
     name: "baserunner",
     streams: [{
         path: logfile
@@ -32,6 +35,12 @@ const log = (str) => {
     logTranscript.innerHTML = logTranscript.innerHTML.split(/\n/).splice(1, 10).join("\n") + str + "\n"
     logstream.info(str)
 }
+
+/* log configuration information */
+log("watch depth=" + watchDepth)
+log("worker concurrency=" + concurrency)
+log("output fastq=" + fastqfile)
+log("logfile=" + logfile)
 
 /* progress indicator setup */
 let stateIndicator       = document.querySelector("#state")
@@ -64,9 +73,15 @@ let workWaiting = new Array()
 let workSuccess = 0
 let workFailure = 0
 let progress    = document.querySelector("#progress")
+let counters    = {
+    success: document.querySelector("#successCounter"),
+    failure: document.querySelector("#failureCounter"),
+    total:   document.querySelector("#totalCounter"),
+    queued:  document.querySelector("#queuedCounter"),
+}
 let watcher     = null
 let workQueue   = queue({
-    concurrency: 1,
+    concurrency: concurrency,
     autostart: 1
 })
 
@@ -86,7 +101,12 @@ const workIndicatorUpdate = () => {
     let pxwF  = barF.parentElement.offsetWidth * percF / 100
     barF.style.setProperty('width', pxwF + "px")
 
-    document.querySelector("#workProgress .label").innerHTML = perc.toFixed(2) + "% (" + workSuccess + " : " + workFailure + " : " + workWaiting.length + ")"
+    document.querySelector("#workProgress .label").innerHTML = perc.toFixed(2) + "%"
+
+    counters.success.innerHTML = workSuccess
+    counters.failure.innerHTML = workFailure
+    counters.total.innerHTML   = workSuccess + workFailure
+    counters.queued.innerHTML  = workWaiting.length
 }
 
 const short_path = (str) => {
@@ -152,8 +172,8 @@ const startAction = () => {
     workFailed  = 0
     workIndicatorInterval = setInterval(workIndicatorUpdate, 5000)
 
-    setup.setAttribute("disabled","disabled")
-    start.setAttribute("disabled","disabled")
+    setup.setAttribute("disabled", "disabled")
+    start.setAttribute("disabled", "disabled")
     stop.removeAttribute("disabled")
 
     let tmp = [folderSelection].map(function(o) {
@@ -161,7 +181,7 @@ const startAction = () => {
     })
 
     watcher = chokidar.watch(tmp, {
-	depth: 2,
+	depth: watchDepth,
 	ignored: /(^|[\/\\])\../
     })
 	.on('add', (path, stats) => {
@@ -213,11 +233,10 @@ stop.addEventListener('click', stopAction)
 
 /* initial button state */
 setup.removeAttribute("disabled")
-start.setAttribute("disabled","disabled")
-stop.setAttribute("disabled","disabled")
+start.setAttribute("disabled", "disabled")
+stop.setAttribute("disabled", "disabled")
 
-/* commandline arg handling */
-let opts = remote.getCurrentWindow().opts
+/* additional commandline arg handling */
 if(opts.options.input) {
     setupSelectionAction(opts.options.input)
 }

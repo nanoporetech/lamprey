@@ -69,3 +69,15 @@
 #states, #actions, #logContainer, #folderContainer {
     clear: both;
 }
+
+#counterContainers .counterContainer {
+    clear: both;
+}
+
+#counterContainers .counterContainer div.label {
+    margin-left: 10px;
+}
+
+#counterContainers .counterContainer div {
+    float: left;
+}
