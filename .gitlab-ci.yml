@@ -15,7 +15,9 @@ pack:
     - curl -sL https://deb.nodesource.com/setup_6.x > nodejs-repo
     - chmod +x nodejs-repo
     - ./nodejs-repo
-    - apt-get install -y --force-yes nodejs libzmq-dev build-essential git python-pip libpython-dev pkg-config libhdf5-dev libatlas-dev python-h5py python-numpy
+    - touch ~/.node-gyp
+    - rm -rf ~/.node-gyp
+    - apt-get install -y --force-yes nodejs node-gyp libzmq-dev build-essential git python-pip libpython-dev pkg-config libhdf5-dev libatlas-dev python-h5py python-numpy
     - make pack
     - tar -czvf `ls -d baserunner-*`.tar.gz baserunner-*
   artifacts:
