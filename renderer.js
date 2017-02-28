@@ -94,7 +94,7 @@ let workQueue    = queue({
 const notify = (msg, title) => {
     return notifier.notify({
 	title: title ? title : "baserunner",
-//	icon: path.join(__dirname, 'assets/baserunner80x80.png'),
+	icon: path.join(__dirname, 'assets/baserunner80x80.png'),
 	message: msg
     });
 }
@@ -226,6 +226,7 @@ const startAction = () => {
 
     /* kick off */
     checkWork(() => { })
+    notify("starting")
 }
 
 /* stop button action */
