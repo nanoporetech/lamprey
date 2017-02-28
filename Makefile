@@ -37,6 +37,6 @@ pack: deps
 	make py
 	touch baserunner-darwin-x64
 	rm -rf baserunner-*
-	./node_modules/.bin/electron-packager . --icon="assets/baserunner512x512" --overwrite --appBundleId="com.nanoporetech.baserunner"
+	./node_modules/.bin/electron-packager . --icon="assets/baserunner512x512" --overwrite --appBundleId="com.nanoporetech.baserunner" --all
 #	cp externals/$(shell uname -s)/* baserunner-*/
 	mv baserunner-* baserunner-$(shell uname -s)-$(MAJOR).$(MINOR).$(SUB).$(PATCH)
