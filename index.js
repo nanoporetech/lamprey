@@ -23,6 +23,14 @@ if(opts.options.autostart && !opts.options.input) {
     process.exit()
 }
 
+if(!opts.options.log) {
+    opts.options.log = path.join(app.getPath('home'), "baserunner.log")
+}
+
+if(!opts.options.ofq) {
+    opts.options.ofq = path.join(app.getPath('home'), "out.fastq")
+}
+
 let mainWindow = null
 const createWindow = () => {
     mainWindow = new BrowserWindow({
