@@ -1,5 +1,5 @@
 .progressContainer {
-    width: 200px;
+    width: 180px;
     height: 20px;
     margin: 0;
     padding: 0;
@@ -47,7 +47,7 @@
 }
 
 #stateContainer {
-    width: 200px;
+    width: 180px;
 }
 
 #stateContainer div {

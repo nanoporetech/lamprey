@@ -42,6 +42,10 @@ log("worker concurrency=" + concurrency)
 log("output fastq=" + fastqfile)
 log("logfile=" + logfile)
 
+/* average processing time per read */
+let avgTime      = 0
+let etaIndicator = document.querySelector("#etaCounter")
+
 /* progress indicator setup */
 let stateIndicator       = document.querySelector("#state")
 stateIndicator.innerHTML = "stopped"
@@ -70,8 +74,8 @@ setup.addEventListener('click', () => {
 })
 
 let workWaiting = new Array()
-let workSuccess = 0
-let workFailure = 0
+let successCount = 0
+let failureCount = 0
 let progress    = document.querySelector("#progress")
 let counters    = {
     success: document.querySelector("#successCounter"),
@@ -86,9 +90,9 @@ let workQueue   = queue({
 })
 
 const workIndicatorUpdate = () => {
-    let perc  = 100 * (workSuccess + workFailure) / (workWaiting.length + workSuccess + workFailure)
-    let percS = 100 * (workSuccess) / (workWaiting.length + workSuccess + workFailure)
-    let percF = 100 * (workFailure) / (workWaiting.length + workSuccess + workFailure)
+    let perc  = 100 * (successCount + failureCount) / (workWaiting.length + successCount + failureCount)
+    let percS = 100 * (successCount) / (workWaiting.length + successCount + failureCount)
+    let percF = 100 * (failureCount) / (workWaiting.length + successCount + failureCount)
 //    let bar  = document.querySelector("#workProgress .progress")
 //    let pxw  = bar.parentElement.offsetWidth * perc / 100
 //    bar.style.setProperty('width', pxw + "px")
@@ -103,9 +107,9 @@ const workIndicatorUpdate = () => {
 
     document.querySelector("#workProgress .label").innerHTML = perc.toFixed(2) + "%"
 
-    counters.success.innerHTML = workSuccess
-    counters.failure.innerHTML = workFailure
-    counters.total.innerHTML   = workSuccess + workFailure
+    counters.success.innerHTML = successCount
+    counters.failure.innerHTML = failureCount
+    counters.total.innerHTML   = successCount + failureCount
     counters.queued.innerHTML  = workWaiting.length
 }
 
@@ -126,37 +130,44 @@ const checkWork = (qcb) => {
     }
 
     let len = workWaiting.length
-    if(len) {
-	let path = workWaiting.shift()
-	log("begin " + short_path(path))
-	client.invoke("process_read", path, (error, res) => {
-	    if(error) {
-		log("error " + short_path(path))
-		log("message " + error)
-		console.error(error)
-		workFailure++
-		return cb()
-	    }
-
-	    let fastq   = res[0];
-	    let failure = res[1];
-	    if(failure) {
-		log(failure.toString() + " " + short_path(path))
-		workFailure++
-	    } else {
-		log("end " + short_path(path))
-		fastqstream.write(fastq.toString())
-		workSuccess++
-	    }
-	    /* immediately check for more work */
-	    return cb()
-	})
-
-    } else {
+    if(!len) {
 	/* no work to do. wait for a bit */
 	log("nothing to do")
 	setTimeout( () => { cb(); }, 5000)
+	return
     }
+	
+    let path = workWaiting.shift()
+    log("begin " + short_path(path))
+    let startTime = new Date()
+
+    client.invoke("process_read", path, (error, res) => {
+	let endTime = new Date()
+	let dTime   = endTime-startTime;
+	avgTime     = ((successCount + failureCount) * avgTime + dTime) / (1 + successCount + failureCount)
+	etaIndicator.innerHTML = new Date((new Date()).getTime() + avgTime * workWaiting.length).toLocaleString()
+	
+	if(error) {
+	    log("error " + short_path(path))
+	    log("message " + error)
+	    console.error(error)
+	    failureCount++
+	    return cb()
+	}
+
+	let fastq   = res[0];
+	let failure = res[1];
+	if(failure) {
+	    log(failure.toString() + " " + short_path(path))
+	    failureCount++
+	} else {
+	    log("end " + short_path(path))
+	    fastqstream.write(fastq.toString())
+	    successCount++
+	}
+	/* immediately check for more work */
+	return cb()
+    })
 }
 
 /* start button action */

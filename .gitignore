@@ -9,3 +9,4 @@ dist/
 build
 .node-gyp
 baserunner.log
+out.fastq
