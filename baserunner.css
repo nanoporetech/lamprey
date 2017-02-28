@@ -66,6 +66,11 @@
     margin-left: 10px;
 }
 
+#logContainer pre {
+    width: 960px;
+    overflow: hidden;
+}
+
 #states, #actions, #logContainer, #folderContainer {
     clear: both;
 }

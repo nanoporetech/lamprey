@@ -14,6 +14,7 @@ let concurrency = opts.options.concurrency ? opts.options.concurrency : 1
 let watchDepth  = opts.options.depth       ? opts.options.depth : 2
 let logfile     = opts.options.log         ? opts.options.log   : "baserunner.log"
 let fastqfile   = opts.options.ofq         ? opts.options.ofq   : "out.fastq"
+const loglines  = 16
 let logstream   = bunyan.createLogger({
     name: "baserunner",
     streams: [{
@@ -28,11 +29,11 @@ client.connect("tcp://127.0.0.1:4242")
 
 /* logging setup */
 let logTranscript = document.querySelector("#log")
-logTranscript.innerHTML = (new Array(10)).join("\n")
+logTranscript.innerHTML = (new Array(loglines)).join("\n")
 
 const log = (str) => {
     let tmp                 = logTranscript.innerHTML
-    logTranscript.innerHTML = logTranscript.innerHTML.split(/\n/).splice(1, 10).join("\n") + str + "\n"
+    logTranscript.innerHTML = logTranscript.innerHTML.split(/\n/).splice(1, loglines).join("\n") + str + "\n"
     logstream.info(str)
 }
 
@@ -73,18 +74,18 @@ setup.addEventListener('click', () => {
     setupSelectionAction(selection[0]) // only keep the first selection
 })
 
-let workWaiting = new Array()
+let watcher      = null
+let workWaiting  = new Array()
 let successCount = 0
 let failureCount = 0
-let progress    = document.querySelector("#progress")
-let counters    = {
+let progress     = document.querySelector("#progress")
+let counters     = {
     success: document.querySelector("#successCounter"),
     failure: document.querySelector("#failureCounter"),
     total:   document.querySelector("#totalCounter"),
     queued:  document.querySelector("#queuedCounter"),
 }
-let watcher     = null
-let workQueue   = queue({
+let workQueue    = queue({
     concurrency: concurrency,
     autostart: 1
 })
@@ -119,7 +120,18 @@ const short_path = (str) => {
 
 let workIndicatorInterval = null
 
+const etaDate = () => {
+    return new Date((new Date()).getTime() + avgTime * workWaiting.length)
+}
 const checkWork = (qcb) => {
+
+    if(workWaiting.length === 0 &&
+       (new Date()) > etaDate) {
+	/* autostop */
+	log("autostopping")
+	stopAction()
+	qcb() // come back and recheck state in a bit
+    }
 
     let cb = () => {
 	workIndicatorUpdate()
@@ -145,7 +157,7 @@ const checkWork = (qcb) => {
 	let endTime = new Date()
 	let dTime   = endTime-startTime;
 	avgTime     = ((successCount + failureCount) * avgTime + dTime) / (1 + successCount + failureCount)
-	etaIndicator.innerHTML = new Date((new Date()).getTime() + avgTime * workWaiting.length).toLocaleString()
+	etaIndicator.innerHTML = etaDate().toLocaleString()
 	
 	if(error) {
 	    log("error " + short_path(path))
