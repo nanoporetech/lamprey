@@ -22,16 +22,24 @@ deps_mac:
 deps_js:
 	npm_config_target=$(npm_config_target) npm_config_arch=$(npm_config_arch) npm_config_target_arch=$(npm_config_target_arch) npm_config_disturl=$(npm_config_disturl) npm_config_runtime=$(npm_config_runtime) npm_config_build_from_source=$(npm_config_build_from_source) npm install
 
+deps_py3:
+	pip3 install --user zerorpc aiozmq numpy scipy h5py
+	pip3 install --user git+https://github.com/pyinstaller/pyinstaller.git
+	cd externals/nanonet ; python3 setup.py develop --user
+
 deps_py:
 	pip install --user zerorpc pyinstaller myriad h5py
+	cd externals/nanonet ; python setup.py develop --user
 
 deps: clean
 	git submodule update --init --recursive
 	make deps_js deps_py
 
-py:
-	cd externals/nanonet ; python setup.py develop --user
+py: deps_py
 #	PATH=$(HOME)/.local/bin:$(HOME)/Library/Python/2.7/bin:$(PATH) pyinstaller --clean --log-level DEBUG api.spec
+
+py3: deps_py
+#	PATH=$(HOME)/.local/bin:$(HOME)/Library/Python/3.6/bin:$(PATH) pyinstaller --clean --log-level DEBUG api.spec
 
 pack: deps
 	make py
