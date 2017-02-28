@@ -14,7 +14,7 @@ all: pack
 
 clean:
 	touch .node-gyp
-	rm -rf ~/.node-gyp ~/.electron-gyp ./node_modules baserunner* include lib .Python pip-selfcheck.json bin build externals/nanonet
+	rm -rf ~/.node-gyp ~/.electron-gyp ./node_modules baserunner-* include lib .Python pip-selfcheck.json bin build externals/nanonet
 
 deps_mac:
 	brew install zmq
@@ -35,8 +35,8 @@ py:
 
 pack: deps
 	make py
-	touch nanodesk-darwin-x64
-	rm -rf nanodesk-*
-	./node_modules/.bin/electron-packager . --icon="baserunner512x512" --overwrite --ignore="\.venv" --ignore="old-post-backup" --ignore="externals" --appBundleId="com.nanoporetech.baserunner"
+	touch baserunner-darwin-x64
+	rm -rf baserunner-*
+	./node_modules/.bin/electron-packager . --icon="assets/baserunner512x512" --overwrite --ignore="externals" --appBundleId="com.nanoporetech.baserunner"
 #	cp externals/$(shell uname -s)/* baserunner-*/
 	mv baserunner-* baserunner-$(shell uname -s)-$(MAJOR).$(MINOR).$(SUB).$(PATCH)
