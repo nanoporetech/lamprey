@@ -55,7 +55,7 @@ stateIndicator.innerHTML = "stopped"
 const setupSelectionAction = (selection) => {
     folderSelection            = selection
     let folder_indicator       = document.querySelector("#folders")
-    folder_indicator.innerHTML = folderSelection //.join(",")
+    folder_indicator.innerHTML = folderSelection + " FastQ: " + fastqfile + " Log: " + logfile//.join(",")
     start.removeAttribute("disabled", "disabled")
     log("selected " + folderSelection)
 }
