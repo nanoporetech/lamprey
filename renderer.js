@@ -4,10 +4,11 @@ const zerorpc  = require("zerorpc")
 const chokidar = require("chokidar")
 const path     = require("path")
 const queue    = require("queue")
-const electron = require('electron')
-const remote   = electron.remote
 const bunyan   = require('bunyan')
 const fs       = require("fs")
+const notifier = require('node-notifier');
+const electron = require('electron')
+const remote   = electron.remote
 
 let opts        = remote.getCurrentWindow().opts
 let concurrency = opts.options.concurrency ? opts.options.concurrency : 1
@@ -90,6 +91,14 @@ let workQueue    = queue({
     autostart: 1
 })
 
+const notify = (msg, title) => {
+    return notifier.notify({
+	title: title ? title : "baserunner",
+	icon: path.join(__dirname, 'baserunner80x80.png'),
+	message: msg
+    });
+}
+
 const workIndicatorUpdate = () => {
     let perc  = 100 * (successCount + failureCount) / (workWaiting.length + successCount + failureCount)
     let percS = 100 * (successCount) / (workWaiting.length + successCount + failureCount)
@@ -123,11 +132,13 @@ let workIndicatorInterval = null
 const etaDate = () => {
     return new Date((new Date()).getTime() + avgTime * workWaiting.length)
 }
+
 const checkWork = (qcb) => {
 
     if(workWaiting.length === 0 &&
-       (new Date()) > etaDate) {
+       (new Date()) > etaDate()) {
 	/* autostop */
+	notify("termination condition reached")
 	log("autostopping")
 	stopAction()
 	qcb() // come back and recheck state in a bit
@@ -245,6 +256,8 @@ const stopAction = () => {
     fastqstream.end()
 
     stateIndicator.innerHTML="stopped"
+
+    notify("stopped")
     log("stopped")
 }
 

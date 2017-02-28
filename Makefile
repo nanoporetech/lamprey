@@ -37,6 +37,6 @@ pack: deps
 	make py
 	touch nanodesk-darwin-x64
 	rm -rf nanodesk-*
-	./node_modules/.bin/electron-packager . --overwrite --ignore="\.venv" --ignore="old-post-backup" --ignore="externals"
-	cp externals/$(shell uname -s)/* baserunner-*/
+	./node_modules/.bin/electron-packager . --icon="baserunner512x512" --overwrite --ignore="\.venv" --ignore="old-post-backup" --ignore="externals" --appBundleId="com.nanoporetech.baserunner"
+#	cp externals/$(shell uname -s)/* baserunner-*/
 	mv baserunner-* baserunner-$(shell uname -s)-$(MAJOR).$(MINOR).$(SUB).$(PATCH)
