@@ -30,7 +30,8 @@ deps_js:
 #	PATH=$(HOME)/.local/bin:$(HOME)/Library/Python/3.6/bin:$(PATH) pyinstaller --clean --log-level DEBUG api.spec
 
 deps_py:
-	pip install --user zerorpc pyinstaller myriad h5py
+	pip install --user zerorpc pyinstaller myriad h5py future
+	pip install --user pyzmq --no-binary :all:
 	cd externals/nanonet ; python setup.py develop --user
 
 py: deps_py

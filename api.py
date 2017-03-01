@@ -1,4 +1,7 @@
 from __future__ import print_function
+# import UserList just to make the compiler happy
+from future.moves.collections import UserList
+
 import sys, os, zerorpc
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/externals/nanonet")
 from nanonet.nanonetcall import process_read as process_read
