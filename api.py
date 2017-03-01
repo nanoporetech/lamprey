@@ -7,10 +7,12 @@ class RunnerApi(object):
     def process_read(self, filename, modelname):
         """basecall a given file (filepath) with a given model (filepath)"""
         try:
-            [(fname, (seq, qual), score, len_features), (network_time, decode_time)] = process_read(modelname, filename, section="template")
-            if fname is not None:
+            result = process_read(modelname, filename, section="template")
+            if result is not None:
+                [(fname, (seq, qual), score, len_features), (network_time, decode_time)] = result
                 fastq = "@{}\n{}\n+\n{}\n".format(fname, seq, qual)
-            return [fastq]
+                return [fastq]
+            return []
         except Exception as e:
             return [None, str(e)]
     def echo(self, text):
