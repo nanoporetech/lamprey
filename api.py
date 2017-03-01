@@ -4,10 +4,10 @@ sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/externals/nanone
 from nanonet.nanonetcall import process_read as process_read
 
 class RunnerApi(object):
-    def process_read(self, filename):
-        """basecall a given filename"""
+    def process_read(self, filename, modelname):
+        """basecall a given file (filepath) with a given model (filepath)"""
         try:
-            [(fname, (seq, qual), score, len_features), (network_time, decode_time)] = process_read("/Users/rmp/dev/ONT/baserunner/externals/nanonet/nanonet/data/r9_template.npy", filename, section="template")
+            [(fname, (seq, qual), score, len_features), (network_time, decode_time)] = process_read(modelname, filename, section="template")
             if fname is not None:
                 fastq = "@{}\n{}\n+\n{}\n".format(fname, seq, qual)
             return [fastq]

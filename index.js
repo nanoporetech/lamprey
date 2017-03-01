@@ -11,6 +11,7 @@ var opts = getopt.create([
     ["i", "input=ARG",       "Input folder"],
     ["o", "ofq=ARG",         "Output FastQ file Default=out.fastq"],
     ["l", "log=ARG",         "Log file. Default=baserunner.log"],
+    ["m", "model=ARG",       "Model file. Default=internal r9_template.npy"],
     ["c", "concurrency=ARG", "Worker concurrency. Default = 1"],
     ["d", "depth=ARG",       "Folder watch depth. Default = 2"],
     ["a", "autostart",       "Autostart"],

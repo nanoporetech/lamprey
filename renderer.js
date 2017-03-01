@@ -15,6 +15,7 @@ let concurrency = opts.options.concurrency ? opts.options.concurrency : 1
 let watchDepth  = opts.options.depth       ? opts.options.depth : 2
 let logfile     = opts.options.log         ? opts.options.log   : "baserunner.log"
 let fastqfile   = opts.options.ofq         ? opts.options.ofq   : "out.fastq"
+let modelfile   = opts.options.model       ? opts.options.model : path.join(remote.app.getAppPath(), "externals","nanonet","nanonet","data","r9_template.npy")
 const loglines  = 16
 let logstream   = bunyan.createLogger({
     name: "baserunner",
@@ -55,7 +56,7 @@ stateIndicator.innerHTML = "stopped"
 const setupSelectionAction = (selection) => {
     folderSelection            = selection
     let folder_indicator       = document.querySelector("#folders")
-    folder_indicator.innerHTML = folderSelection + " FastQ: " + fastqfile + " Log: " + logfile//.join(",")
+    folder_indicator.innerHTML = folderSelection + " FastQ: " + fastqfile + " Log: " + logfile + " Model: " + modelfile.split("/").slice(-1)[0]
     start.removeAttribute("disabled", "disabled")
     log("selected " + folderSelection)
 }
@@ -164,7 +165,7 @@ const checkWork = (qcb) => {
     log("begin " + short_path(path))
     let startTime = new Date()
 
-    client.invoke("process_read", path, (error, res) => {
+    client.invoke("process_read", path, modelfile, (error, res) => {
 	let endTime = new Date()
 	let dTime   = endTime-startTime;
 	avgTime     = ((successCount + failureCount) * avgTime + dTime) / (1 + successCount + failureCount)
