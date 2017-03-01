@@ -3,17 +3,51 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>Hello Calculator!</title>
+    <title>baserunner</title>
+    <link rel="stylesheet" type="text/css" href="baserunner.css"/>
   </head>
   <body>
-    <h1>Hello Calculator!</h1>
-    <p>Input something like <code>1 + 1</code>.</p>
-    <p>This calculator supports <code>+-*/^()</code>,
-    whitespaces, and integers and floating numbers.</p>
-    <input id="formula" value="1 + 2.0 * 3.1 / (4 ^ 5.6)"></input>
-    <div id="result"></div>
+    <div id="indicators">
+      <div id="states">
+	<div id="stateContainer"><div class="label">State: </div><div id="state"></div></div>
+	<div id="workProgress" class="progressContainer">
+	  <div class="label"></div>
+	  <!-- div class="progress"></div-->
+	  <div class="success"></div>
+	  <div class="failure"></div>
+	</div>
+	<div id="counterContainers">
+	  <div style="width: 180px; float: left">
+	    <div id="successContainer" class="counterContainer"><div class="label">Success: </div><div id="successCounter"></div></div>
+	    <div id="failureContainer" class="counterContainer"><div class="label">Failure: </div><div id="failureCounter"></div></div>
+	  </div>
+	  <div style="width: 180px; float: left">
+	    <div id="totalContainer"   class="counterContainer"><div class="label">Total: </div><div id="totalCounter"></div></div>
+	    <div id="queuedContainer"  class="counterContainer"><div class="label">Queued: </div><div id="queuedCounter"></div></div>
+	  </div>
+	  <div style="width: 200px; float: left">
+	    <div id="etaContainer"   class="counterContainer"><div class="label">ETA: </div><div id="etaCounter"></div></div>
+	  </div>
+	</div>
+      </div>
+      <div id="folderContainer">
+	<div>Folder: </div>
+	<div id="folders">unset</div>
+      </div>
+    </div>
+    <div id="actions">
+      <button id="setup">setup</button>
+      <button id="start">start</button>
+      <button id="stop">stop</button>
+    </div>
+    <div id="logContainer">
+      <fieldset>
+	<legend>Details</legend>
+	<pre id="log"></pre>
+      </fieldset>
+    </div>
   </body>
   <script>
-    require('./renderer.js')
+   require('./renderer.js')
   </script>
 </html>

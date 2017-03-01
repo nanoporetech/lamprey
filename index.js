@@ -1,22 +1,56 @@
 // main.js
 
-const electron = require('electron')
-const app = electron.app
+const electron      = require('electron')
+const path          = require('path')
+const getopt        = require('node-getopt')
+const app           = electron.app
 const BrowserWindow = electron.BrowserWindow
-const path = require('path')
+
+var opts = getopt.create([
+    ["h", "help",            "This help"],
+    ["i", "input=ARG",       "Input folder"],
+    ["o", "ofq=ARG",         "Output FastQ file Default=out.fastq"],
+    ["l", "log=ARG",         "Log file. Default=baserunner.log"],
+    ["m", "model=ARG",       "Model file. Default=internal r9_template.npy"],
+    ["c", "concurrency=ARG", "Worker concurrency. Default = 1"],
+    ["d", "depth=ARG",       "Folder watch depth. Default = 2"],
+    ["a", "autostart",       "Autostart"],
+])
+    .bindHelp()
+    .parseSystem()
+
+if(opts.options.autostart && !opts.options.input) {
+    console.log("Cannot autostart without an input folder")
+    process.exit()
+}
+
+if(!opts.options.log) {
+    opts.options.log = path.join(app.getPath('home'), "baserunner.log")
+}
+
+if(!opts.options.ofq) {
+    opts.options.ofq = path.join(app.getPath('home'), "out.fastq")
+}
 
 let mainWindow = null
 const createWindow = () => {
-  mainWindow = new BrowserWindow({width: 800, height: 600})
-  mainWindow.loadURL(require('url').format({
-    pathname: path.join(__dirname, 'index.html'),
-    protocol: 'file:',
-    slashes: true
-  }))
-  mainWindow.webContents.openDevTools()
-  mainWindow.on('closed', () => {
-    mainWindow = null
-  })
+    mainWindow = new BrowserWindow({
+	width: 1000,
+	height: 400,
+	resizable: false
+    })
+    mainWindow.loadURL(require('url').format({
+	pathname: path.join(__dirname, 'index.html'),
+	protocol: 'file:',
+	slashes: true
+    }))
+
+    // pass commandline options
+    mainWindow.opts = opts
+//    mainWindow.webContents.openDevTools()
+    mainWindow.on('closed', () => {
+	mainWindow = null
+    })
 }
 
 app.on('ready', createWindow);
@@ -43,7 +77,7 @@ const selectPort = () => {
 }
 
 const PY_DIST_FOLDER = 'dist'
-const PY_FOLDER = 'pycalc'
+const PY_FOLDER = ''
 const PY_MODULE = 'api' // without .py suffix
 
 const guessPackaged = () => {
@@ -52,13 +86,15 @@ const guessPackaged = () => {
 }
 
 const getScriptPath = () => {
-  if (!guessPackaged()) {
-    return path.join(__dirname, PY_FOLDER, PY_MODULE + '.py')
-  }
-  if (process.platform === 'win32') {
-    return path.join(__dirname, PY_DIST_FOLDER, PY_MODULE, '.exe')
-  }
-  return path.join(__dirname, PY_DIST_FOLDER, PY_MODULE)
+    if (!guessPackaged()) {
+	return path.join(__dirname, PY_FOLDER, PY_MODULE + '.py')
+    }
+
+    if (process.platform === 'win32') {
+	return path.join(__dirname, PY_DIST_FOLDER, PY_MODULE, PY_MODULE, '.exe')
+    }
+
+    return path.join(__dirname, PY_DIST_FOLDER, PY_MODULE, PY_MODULE)
 }
 
 const createPyProc = () => {

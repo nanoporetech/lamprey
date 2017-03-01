@@ -1,11 +1,14 @@
+__pycache__
+.DS_Store
 .Python
 bin/
 include/
 lib/
-nanodesk-darwin-x64/
+baserunner-*
 node_modules/
 pip-selfcheck.json
 dist/
 build
 .node-gyp
-pycalc/calc.pyc
+baserunner.log
+out.fastq
