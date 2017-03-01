@@ -86,13 +86,15 @@ const guessPackaged = () => {
 }
 
 const getScriptPath = () => {
-  if (!guessPackaged()) {
-    return path.join(__dirname, PY_FOLDER, PY_MODULE + '.py')
-  }
-  if (process.platform === 'win32') {
-    return path.join(__dirname, PY_DIST_FOLDER, PY_MODULE, '.exe')
-  }
-  return path.join(__dirname, PY_DIST_FOLDER, PY_MODULE)
+    if (!guessPackaged()) {
+	return path.join(__dirname, PY_FOLDER, PY_MODULE + '.py')
+    }
+
+    if (process.platform === 'win32') {
+	return path.join(__dirname, PY_DIST_FOLDER, PY_MODULE, PY_MODULE, '.exe')
+    }
+
+    return path.join(__dirname, PY_DIST_FOLDER, PY_MODULE, PY_MODULE)
 }
 
 const createPyProc = () => {
