@@ -1,14 +1,24 @@
 # -*- mode: python -*-
-from PyInstaller.utils.hooks import collect_dynamic_libs
 
+import platform
+system = platform.system()
 block_cipher = None
 
+binaries      = [('externals/nanonet/nanonet*.so', '.')]
+datas         = [('externals/nanonet/nanonet/data/*', 'externals/nanonet/nanonet/data')]
+hiddenimports = []
+
+if system == 'Darwin':
+    # there is a hook for this h5py but seems not to work (on OSX at least)
+    hiddenimports += [
+        'h5py.{}'.format(x) for x in ['_proxy', 'utils', 'defs', 'h5ac']
+    ]
 
 a = Analysis(['api.py'],
              pathex=['/Users/rmp/dev/ONT/baserunner'],
-             binaries=collect_dynamic_libs('zmq','h5py'),
-             datas=[],
-             hiddenimports=[],
+             binaries=binaries,
+             datas=datas,
+             hiddenimports=hiddenimports,
              hookspath=[],
              runtime_hooks=[],
              excludes=[],
@@ -19,7 +29,7 @@ pyz = PYZ(a.pure, a.zipped_data,
              cipher=block_cipher)
 exe = EXE(pyz,
           a.scripts,
-#          exclude_binaries=True,
+          exclude_binaries=True,
           name='api',
           debug=False,
           strip=False,
