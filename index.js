@@ -4,7 +4,9 @@ const electron      = require('electron')
 const path          = require('path')
 const getopt        = require('node-getopt')
 const app           = electron.app
+const Menu          = electron.Menu
 const BrowserWindow = electron.BrowserWindow
+const IPC           = electron.ipcMain
 
 var opts = getopt.create([
     ["h", "help",            "This help"],
@@ -40,6 +42,7 @@ const createWindow = () => {
 	height: 400,
 	resizable: opts.options.debug ? true : false
     })
+
     mainWindow.loadURL(require('url').format({
 	pathname: path.join(__dirname, 'index.html'),
 	protocol: 'file:',
@@ -52,6 +55,33 @@ const createWindow = () => {
 	mainWindow.webContents.openDevTools()
     }
 
+    var menu = Menu.buildFromTemplate([
+	{
+	    label: 'Baserunner',
+	    submenu: [
+		{
+		    label: 'Setup',
+		    click: function(item, window) {
+			window.dispatchEvent({type:'setup'})
+		    }
+		},
+		{
+		    label: 'Start',
+		    click: function(item, window) {
+			window.dispatchEvent({type:'start'})
+		    }
+		},
+		{
+		    label: 'Stop',
+		    click: function(item, window) {
+			window.dispatchEvent({type:'stop'})
+		    }
+		}
+	    ]
+	}
+    ])
+    Menu.setApplicationMenu(menu)
+
     mainWindow.on('closed', () => {
 	mainWindow = null
     })
@@ -59,15 +89,15 @@ const createWindow = () => {
 
 app.on('ready', createWindow);
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
+    if (process.platform !== 'darwin') {
+	app.quit()
+    }
 })
 
 app.on('activate', () => {
-  if (mainWindow === null) {
-    createWindow()
-  }
+    if (mainWindow === null) {
+	createWindow()
+    }
 })
 
 // add these to the end or middle of main.js
@@ -85,8 +115,8 @@ const PY_FOLDER = ''
 const PY_MODULE = 'api' // without .py suffix
 
 const guessPackaged = () => {
-  const fullPath = path.join(__dirname, PY_DIST_FOLDER)
-  return require('fs').existsSync(fullPath)
+    const fullPath = path.join(__dirname, PY_DIST_FOLDER)
+    return require('fs').existsSync(fullPath)
 }
 
 const getScriptPath = () => {
@@ -102,19 +132,20 @@ const getScriptPath = () => {
 }
 
 const createPyProc = () => {
-  let script = getScriptPath()
-  let port = '' + selectPort()
-    console.log(script);
-  if (guessPackaged()) {
-    pyProc = require('child_process').execFile(script, [port])
-  } else {
-    pyProc = require('child_process').spawn('python', [script, port])
-  }
+    let script = getScriptPath()
+    let port = '' + selectPort()
+    console.log(script)
 
-  if (pyProc != null) {
-    //console.log(pyProc)
-    console.log('child process success on port ' + port)
-  }
+    if (guessPackaged()) {
+	pyProc = require('child_process').execFile(script, [port])
+    } else {
+	pyProc = require('child_process').spawn('python', [script, port])
+    }
+
+    if (pyProc != null) {
+	//console.log(pyProc)
+	console.log('child process success on port ' + port)
+    }
 }
 
 const exitPyProc = () => {

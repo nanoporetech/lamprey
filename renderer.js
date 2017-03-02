@@ -9,6 +9,7 @@ const fs       = require("fs")
 const notifier = require('node-notifier');
 const electron = require('electron')
 const remote   = electron.remote
+const IPC      = electron.ipcRenderer
 
 let opts        = remote.getCurrentWindow().opts
 let concurrency = opts.options.concurrency ? opts.options.concurrency : 1
@@ -53,6 +54,9 @@ let etaIndicator = document.querySelector("#etaCounter")
 let stateIndicator       = document.querySelector("#state")
 stateIndicator.innerHTML = "stopped"
 
+/* setup input folder */
+let folderSelection = null
+
 const setupSelectionAction = (selection) => {
     folderSelection            = selection
     let folder_indicator       = document.querySelector("#folders")
@@ -62,9 +66,7 @@ const setupSelectionAction = (selection) => {
 }
 
 /* setup button action */
-let setup = document.querySelector("#setup")
-let folderSelection = null
-setup.addEventListener('click', () => {
+const setupAction = () => {
     let selection = remote.dialog.showOpenDialog(null, {
 	properties: ['openDirectory']
     })
@@ -74,7 +76,7 @@ setup.addEventListener('click', () => {
     }
 
     setupSelectionAction(selection[0]) // only keep the first selection
-})
+}
 
 let watcher      = null
 let workWaiting  = new Array()
@@ -263,11 +265,17 @@ const stopAction = () => {
     log("stopped")
 }
 
+let setup = document.querySelector("#setup")
+setup.addEventListener('click', setupAction)
+IPC.on('setup', setupAction)
+
 let start = document.querySelector("#start")
 start.addEventListener('click', startAction)
+window.addEventListener('start', startAction)
 
 let stop = document.querySelector("#stop")
 stop.addEventListener('click', stopAction)
+window.addEventListener('stop', stopAction)
 
 /* initial button state */
 setup.removeAttribute("disabled")
