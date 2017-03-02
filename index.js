@@ -15,6 +15,7 @@ var opts = getopt.create([
     ["c", "concurrency=ARG", "Worker concurrency. Default = 1"],
     ["d", "depth=ARG",       "Folder watch depth. Default = 2"],
     ["a", "autostart",       "Autostart"],
+    ["", "debug",            "Open debug console"],
 ])
     .bindHelp()
     .parseSystem()
@@ -37,7 +38,7 @@ const createWindow = () => {
     mainWindow = new BrowserWindow({
 	width: 1000,
 	height: 400,
-	resizable: false
+	resizable: opts.options.debug ? true : false
     })
     mainWindow.loadURL(require('url').format({
 	pathname: path.join(__dirname, 'index.html'),
@@ -47,7 +48,10 @@ const createWindow = () => {
 
     // pass commandline options
     mainWindow.opts = opts
-//    mainWindow.webContents.openDevTools()
+    if(opts.options.debug) {
+	mainWindow.webContents.openDevTools()
+    }
+
     mainWindow.on('closed', () => {
 	mainWindow = null
     })
