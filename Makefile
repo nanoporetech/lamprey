@@ -1,4 +1,4 @@
-npm_config_target=1.4.15 # electron version
+npm_config_target=$(shell jq -r '.devDependencies.electron' < package.json | perl -pe 's/[^\d.]+//g') # electron version
 npm_config_arch=x64
 npm_config_target_arch=x64
 npm_config_disturl=https://atom.io/download/electron
