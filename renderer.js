@@ -267,7 +267,7 @@ const stopAction = () => {
 
 let setup = document.querySelector("#setup")
 setup.addEventListener('click', setupAction)
-IPC.on('setup', setupAction)
+window.addEventListener('setup', setupAction)
 
 let start = document.querySelector("#start")
 start.addEventListener('click', startAction)
@@ -276,6 +276,11 @@ window.addEventListener('start', startAction)
 let stop = document.querySelector("#stop")
 stop.addEventListener('click', stopAction)
 window.addEventListener('stop', stopAction)
+
+IPC.on("menu-event", function(event, arg) {
+    console.log("menu-event handler", event, arg);
+    window.dispatchEvent(new Event(arg));
+});
 
 /* initial button state */
 setup.removeAttribute("disabled")

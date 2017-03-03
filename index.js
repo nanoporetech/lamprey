@@ -6,7 +6,6 @@ const getopt        = require('node-getopt')
 const app           = electron.app
 const Menu          = electron.Menu
 const BrowserWindow = electron.BrowserWindow
-const IPC           = electron.ipcMain
 
 var opts = getopt.create([
     ["h", "help",            "This help"],
@@ -62,19 +61,25 @@ const createWindow = () => {
 		{
 		    label: 'Setup',
 		    click: function(item, window) {
-			window.dispatchEvent({type:'setup'})
+			mainWindow.webContents.send('menu-event', 'setup');
 		    }
 		},
 		{
 		    label: 'Start',
 		    click: function(item, window) {
-			window.dispatchEvent({type:'start'})
+			mainWindow.webContents.send('menu-event', 'start');
 		    }
 		},
 		{
 		    label: 'Stop',
 		    click: function(item, window) {
-			window.dispatchEvent({type:'stop'})
+			mainWindow.webContents.send('menu-event', 'stop');
+		    }
+		},
+		{
+		    label: 'Quit',
+		    click: function() {
+			process.exit()
 		    }
 		}
 	    ]
