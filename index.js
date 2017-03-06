@@ -6,6 +6,7 @@ const getopt        = require('node-getopt')
 const app           = electron.app
 const Menu          = electron.Menu
 const BrowserWindow = electron.BrowserWindow
+const basePort      = 28320
 
 var opts = getopt.create([
     ["h", "help",            "This help"],
@@ -32,6 +33,10 @@ if(!opts.options.log) {
 
 if(!opts.options.ofq) {
     opts.options.ofq = path.join(app.getPath('home'), "out.fastq")
+}
+
+if(!opts.options.concurrency) {
+    opts.options.concurrency = 4
 }
 
 let mainWindow = null
@@ -80,7 +85,7 @@ const createWindow = () => {
 		    label: 'Quit',
 		    accelerator: "Command+Q", 
 		    click: function() {
-			process.exit()
+			app.quit()
 		    }
 		}
 	    ]
@@ -108,13 +113,7 @@ app.on('activate', () => {
 
 // add these to the end or middle of main.js
 
-let pyProc = null
-let pyPort = null
-
-const selectPort = () => {
-    pyPort = 4242
-    return pyPort
-}
+let pyProcs = new Array(opts.options.concurrency)
 
 const PY_DIST_FOLDER = 'dist'
 const PY_FOLDER = ''
@@ -139,26 +138,36 @@ const getScriptPath = () => {
 
 const createPyProc = () => {
     let script = getScriptPath()
-    let port   = '' + selectPort()
 
     console.log(`child process using ${script}`)
 
-    if (guessPackaged()) {
-	pyProc = require('child_process').execFile(script, [port])
-    } else {
-	pyProc = require('child_process').spawn('python', [script, port])
-    }
+    for(i=0; i< opts.options.concurrency; i += 1) {
+	let port   = '' + (basePort + i)
+	let pyProc = null
 
-    if (pyProc != null) {
-	//console.log(pyProc)
-	console.log(`child process success on port ${port}`)
+	if (guessPackaged()) {
+	    pyProc = require('child_process').execFile(script, [port])
+	} else {
+	    pyProc = require('child_process').spawn('python', [script, port])
+	}
+
+	if (pyProc != null) {
+	    //console.log(pyProc)
+	    console.log(`child process ${i} on port ${port}`)
+	    pyProcs[i] = pyProc;
+	} else {
+	    console.log(`child failed on port ${port}`)
+	}
     }
 }
 
 const exitPyProc = () => {
-    pyProc.kill()
-    pyProc = null
-    pyPort = null
+    console.log("terminating child service")
+    pyProcs.forEach((o) => {
+	console.log("killing", o)
+	o.kill()
+	return null
+    })
 }
 
 app.on('ready', createPyProc)
