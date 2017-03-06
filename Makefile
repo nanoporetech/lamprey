@@ -5,10 +5,13 @@ npm_config_disturl=https://atom.io/download/electron
 npm_config_runtime=electron
 npm_config_build_from_source=true
 
-MAJOR ?= 0
-MINOR ?= 0
-SUB   ?= 0
-PATCH ?= 1
+MAJOR   ?= 0
+MINOR   ?= 0
+SUB     ?= 0
+PATCH   ?= 1
+APPNAME ?= baserunner-$(shell uname -s)-$(MAJOR).$(MINOR).$(SUB).$(PATCH)
+OSX_TEAM_ID=
+OSX_BUNDLE_ID=LJKTDEZN58
 
 all: pack
 
@@ -44,5 +47,9 @@ pack: deps
 	touch baserunner-darwin-x64
 	rm -rf baserunner-*
 	./node_modules/.bin/electron-packager . --icon="assets/baserunner512x512" --overwrite --appBundleId="com.nanoporetech.baserunner"
-#	cp externals/$(shell uname -s)/* baserunner-*/
-	mv baserunner-* baserunner-$(shell uname -s)-$(MAJOR).$(MINOR).$(SUB).$(PATCH)
+	mv baserunner-* $(APPNAME)
+
+#sign:
+#	tools/mac/sign-app $(APPNAME)
+#	codesign --deep --force --verbose --sign "com.nanoporetech.baserunner" $(APPNAME)
+#	codesign --verify -vvvv $(APPNAME) and spctl -a -vvvv $(APPNAME)
