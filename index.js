@@ -1,12 +1,18 @@
-// main.js
-
+/*
+ * Copyright (c) 2017 Oxford Nanopore Technologies Ltd.
+ * Author: rmp
+ */
+/*global require, module */
 const electron      = require('electron')
 const path          = require('path')
 const getopt        = require('node-getopt')
+const bunyan        = require('bunyan')
 const app           = electron.app
 const Menu          = electron.Menu
 const BrowserWindow = electron.BrowserWindow
 const basePort      = 28320
+const osUtil        = require("./osutil")
+const osutil        = new osUtil({log:bunyan.createLogger({name:"main"})})
 
 var opts = getopt.create([
     ["h", "help",            "This help"],
@@ -35,8 +41,8 @@ if(!opts.options.ofq) {
     opts.options.ofq = path.join(app.getPath('home'), "out.fastq")
 }
 
-if(!opts.options.concurrency) {
-    opts.options.concurrency = 4
+if(!opts.options.basePort) {
+    opts.options.basePort = basePort
 }
 
 let mainWindow = null
@@ -65,26 +71,26 @@ const createWindow = () => {
 	    submenu: [
 		{
 		    label: 'Setup',
-		    click: function(item, window) {
-			mainWindow.webContents.send('menu-event', 'setup');
+		    click: (item, window) => {
+			mainWindow.webContents.send('menu-event', 'setup')
 		    }
 		},
 		{
 		    label: 'Start',
-		    click: function(item, window) {
-			mainWindow.webContents.send('menu-event', 'start');
+		    click: (item, window) => {
+			mainWindow.webContents.send('menu-event', 'start')
 		    }
 		},
 		{
 		    label: 'Stop',
-		    click: function(item, window) {
-			mainWindow.webContents.send('menu-event', 'stop');
+		    click: (item, window) => {
+			mainWindow.webContents.send('menu-event', 'stop')
 		    }
 		},
 		{
 		    label: 'Quit',
 		    accelerator: "Command+Q", 
-		    click: function() {
+		    click: () => {
 			app.quit()
 		    }
 		}
@@ -98,7 +104,7 @@ const createWindow = () => {
     })
 }
 
-app.on('ready', createWindow);
+app.on('ready', createWindow)
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
 	app.quit()
@@ -154,7 +160,8 @@ const createPyProc = () => {
 	if (pyProc != null) {
 	    //console.log(pyProc)
 	    console.log(`child process ${i} on port ${port}`)
-	    pyProcs[i] = pyProc;
+	    pyProcs[i] = pyProc
+
 	} else {
 	    console.log(`child failed on port ${port}`)
 	}
@@ -164,11 +171,32 @@ const createPyProc = () => {
 const exitPyProc = () => {
     console.log("terminating child service")
     pyProcs.forEach((o) => {
-	console.log("killing", o)
-	o.kill()
+	if(o) {
+	    if(o.spawnargs) {
+		console.log("killing", o.spawnargs.join(" "))
+	    }
+	    o.kill()
+	}
 	return null
     })
 }
 
-app.on('ready', createPyProc)
+const cpuCheck = () => {
+    if(opts.options.concurrency) {
+	return createPyProc()
+    }
+
+    osutil.procs((err, logical) => {
+	if(err) {
+	    console.log("error discovering logical cpus", err)
+	    opts.options.concurrency = 4
+	    return createPyProc()
+	}
+	console.log(logical, "logical cpus detected")
+	opts.options.concurrency = logical-1
+	return createPyProc()
+    })
+}
+
+app.on('ready', cpuCheck)
 app.on('will-quit', exitPyProc)
