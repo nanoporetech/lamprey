@@ -7,6 +7,7 @@ const app           = electron.app
 const Menu          = electron.Menu
 const BrowserWindow = electron.BrowserWindow
 const basePort      = 28320
+//const osutil        = require("./osutil")
 
 var opts = getopt.create([
     ["h", "help",            "This help"],
@@ -39,6 +40,10 @@ if(!opts.options.concurrency) {
     opts.options.concurrency = 4
 }
 
+if(!opts.options.basePort) {
+    opts.options.basePort = basePort
+}
+
 let mainWindow = null
 const createWindow = () => {
     mainWindow = new BrowserWindow({
@@ -65,26 +70,26 @@ const createWindow = () => {
 	    submenu: [
 		{
 		    label: 'Setup',
-		    click: function(item, window) {
+		    click: (item, window) => {
 			mainWindow.webContents.send('menu-event', 'setup');
 		    }
 		},
 		{
 		    label: 'Start',
-		    click: function(item, window) {
+		    click: (item, window) => {
 			mainWindow.webContents.send('menu-event', 'start');
 		    }
 		},
 		{
 		    label: 'Stop',
-		    click: function(item, window) {
+		    click: (item, window) => {
 			mainWindow.webContents.send('menu-event', 'stop');
 		    }
 		},
 		{
 		    label: 'Quit',
 		    accelerator: "Command+Q", 
-		    click: function() {
+		    click: () => {
 			app.quit()
 		    }
 		}
@@ -164,7 +169,7 @@ const createPyProc = () => {
 const exitPyProc = () => {
     console.log("terminating child service")
     pyProcs.forEach((o) => {
-	console.log("killing", o)
+	console.log("killing", o.spawnargs.join(" "))
 	o.kill()
 	return null
     })

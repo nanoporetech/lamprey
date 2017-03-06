@@ -1,11 +1,10 @@
 // renderer.js
 
-const zerorpc  = require("zerorpc")
 const chokidar = require("chokidar")
 const path     = require("path")
-const queue    = require("queue")
 const bunyan   = require('bunyan')
 const fs       = require("fs")
+const Consumer = require('./consumer')
 const notifier = require('node-notifier');
 const electron = require('electron')
 const remote   = electron.remote
@@ -14,22 +13,72 @@ const IPC      = electron.ipcRenderer
 let menu        = remote.Menu.getApplicationMenu()
 let opts        = remote.getCurrentWindow().opts
 let concurrency = opts.options.concurrency ? opts.options.concurrency : 1
-let watchDepth  = opts.options.depth       ? opts.options.depth : 2
-let logfile     = opts.options.log         ? opts.options.log   : "baserunner.log"
-let fastqfile   = opts.options.ofq         ? opts.options.ofq   : "out.fastq"
-let modelfile   = opts.options.model       ? opts.options.model : path.join(remote.app.getAppPath(), "externals","nanonet","nanonet","data","r9_template.npy")
+let watchDepth  = opts.options.depth       ? opts.options.depth    : 2
+let basePort    = opts.options.basePort    ? opts.options.basePort : 28320
+let logfile     = opts.options.log         ? opts.options.log      : "baserunner.log"
+let fastqfile   = opts.options.ofq         ? opts.options.ofq      : "out.fastq"
+let modelfile   = opts.options.model       ? opts.options.model    : path.join(remote.app.getAppPath(), "externals","nanonet","nanonet","data","r9_template.npy")
 const loglines  = 16
+let consumers   = []
+let fastqstream = null
 let logstream   = bunyan.createLogger({
     name: "baserunner",
     streams: [{
         path: logfile
     }]
 })
-let fastqstream = null
 
-/* zerorpc setup */
-let client = new zerorpc.Client()
-client.connect("tcp://127.0.0.1:4242")
+for (var i = 0; i < opts.options.concurrency; i+= 1) {
+    let consumer = new Consumer({
+	id: i,
+	port: basePort+i,
+	check: () => {
+	    let job = workWaiting.shift()
+	    if(job) {
+		job.startTime = new Date()
+		log("begin " + short_path(job.path))
+	    }
+	    return job
+	},
+	complete: (error, res, job) => {
+	    let endTime = new Date()
+	    let dTime   = endTime - job.startTime;
+	    let path    = job.path || ""
+	    avgTime     = ((successCount + failureCount) * avgTime + dTime) / (1 + successCount + failureCount)
+	    etaIndicator.innerHTML = etaDate().toLocaleString()
+	    
+	    if(error) {
+		log("error " + short_path(path))
+		log("message " + error)
+		console.error(error)
+		failureCount++
+		return
+	    }
+	    
+	    let fastq   = res[0];
+	    let failure = res[1];
+	    if(failure) {
+		log(failure.toString() + " " + short_path(path))
+		failureCount++
+		return
+	    }
+
+	    if(fastq) {
+		log("end " + short_path(path))
+		fastqstream.write(fastq.toString())
+		successCount++
+		return
+	    }
+
+	    log("failed to run job")
+	    failureCount++
+
+	    /* immediately check for more work */
+	    return
+	}
+    })
+    consumers.push(consumer)
+}
 
 /* logging setup */
 let logTranscript = document.querySelector("#log")
@@ -100,11 +149,6 @@ let counters     = {
     total:   document.querySelector("#totalCounter"),
     queued:  document.querySelector("#queuedCounter"),
 }
-let workQueue    = queue({
-    concurrency: concurrency,
-    autostart: 1
-})
-
 const notify = (msg, title) => {
     return notifier.notify({
 	title: title ? title : "baserunner",
@@ -147,69 +191,6 @@ const etaDate = () => {
     return new Date((new Date()).getTime() + avgTime * workWaiting.length)
 }
 
-const checkWork = (qcb) => {
-
-    if(workWaiting.length === 0 &&
-       (new Date()) > etaDate()) {
-	/* autostop */
-	notify("termination condition reached")
-	log("autostopping")
-	stopAction()
-	qcb() // come back and recheck state in a bit
-    }
-
-    let cb = () => {
-	workIndicatorUpdate()
-	if(stateIndicator.innerHTML !== "stopped") {
-	    workQueue.push(checkWork) // self-perpetuating
-	}
-	qcb()
-    }
-
-    let len = workWaiting.length
-    if(!len) {
-	/* no work to do. wait for a bit */
-	log("nothing to do")
-	setTimeout( () => { cb(); }, 5000)
-	return
-    }
-	
-    let path = workWaiting.shift()
-    log("begin " + short_path(path))
-    let startTime = new Date()
-
-    client.invoke("process_read", path, modelfile, (error, res) => {
-	let endTime = new Date()
-	let dTime   = endTime-startTime;
-	avgTime     = ((successCount + failureCount) * avgTime + dTime) / (1 + successCount + failureCount)
-	etaIndicator.innerHTML = etaDate().toLocaleString()
-	
-	if(error) {
-	    log("error " + short_path(path))
-	    log("message " + error)
-	    console.error(error)
-	    failureCount++
-	    return cb()
-	}
-
-	let fastq   = res[0];
-	let failure = res[1];
-	if(failure) {
-	    log(failure.toString() + " " + short_path(path))
-	    failureCount++
-	} else if(fastq) {
-	    log("end " + short_path(path))
-	    fastqstream.write(fastq.toString())
-	    successCount++
-	} else {
-	    log("failed to run job")
-	    failureCount++
-	}
-	/* immediately check for more work */
-	return cb()
-    })
-}
-
 /* start button action */
 const startAction = () => {
     if(!folderSelection) {
@@ -218,9 +199,9 @@ const startAction = () => {
     }
     log("selected " + folderSelection)
 
-    fastqstream = fs.createWriteStream(fastqfile)
-    workDone    = 0
-    workFailed  = 0
+    fastqstream           = fs.createWriteStream(fastqfile)
+    workDone              = 0
+    workFailed            = 0
     workIndicatorInterval = setInterval(workIndicatorUpdate, 5000)
 
     setupButton.setAttribute("disabled", "disabled")
@@ -230,22 +211,27 @@ const startAction = () => {
     startMenuItem.enabled = false
     stopMenuItem.enabled  = true
 
-    let tmp = [folderSelection].map(function(o) {
-	return path.join(o, "**", "*.fast5")
-    })
+    let tmp = [folderSelection]
+	.map((o) => {
+	    return path.join(o, "**", "*.fast5")
+	})
 
-    watcher = chokidar.watch(tmp, {
-	depth: watchDepth,
-	ignored: /(^|[\/\\])\../
-    })
+    watcher = chokidar
+	.watch(tmp, {
+	    depth: watchDepth,
+	    ignored: /(^|[\/\\])\../
+	})
 	.on('add', (path, stats) => {
 	    log("queued " + short_path(path))
-	    workWaiting.push(path)
+	    workWaiting.push({
+		func: 'process_read',
+		path: path,
+		model: modelfile
+	    })
 	})
     stateIndicator.innerHTML = "running"
 
     /* kick off */
-    checkWork(() => { })
     notify("starting")
 }
 
@@ -258,9 +244,6 @@ const stopAction = () => {
 
     log("stopping file watcher")
     watcher.close()
-
-    log("stopping workers")
-    workQueue.end("stopping")
 
     log("emptying queue")
     workWaiting=[]
@@ -294,7 +277,7 @@ window.addEventListener('start', startAction)
 stopButton.addEventListener('click', stopAction)
 window.addEventListener('stop', stopAction)
 
-IPC.on("menu-event", function(event, arg) {
+IPC.on("menu-event", (event, arg) => {
     console.log("menu-event handler", event, arg);
     window.dispatchEvent(new Event(arg));
 });
@@ -303,9 +286,9 @@ IPC.on("menu-event", function(event, arg) {
 setupButton.removeAttribute("disabled")
 startButton.setAttribute("disabled", "disabled")
 stopButton.setAttribute("disabled", "disabled")
-setupMenuItem.enabled=true
-startMenuItem.enabled=false
-stopMenuItem.enabled=false
+setupMenuItem.enabled = true
+startMenuItem.enabled = false
+stopMenuItem.enabled  = false
 
 /* additional commandline arg handling */
 if(opts.options.input) {
