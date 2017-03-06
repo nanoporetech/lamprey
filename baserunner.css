@@ -1,9 +1,15 @@
+body {
+    font-family: HelveticaNeueLT, "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+    background: #0c5a71;
+    color: #fff;
+}
+
 .progressContainer {
     width: 180px;
     height: 20px;
     margin: 0;
     padding: 0;
-    background: #ddd;
+    background: #aaa;
     overflow: hidden;
 }
 
@@ -71,8 +77,19 @@
     overflow: hidden;
 }
 
+#indicators {
+    font-weight: 300;
+    font-size: 0.9em;
+}
+
+#logContainer legend, #logContainer fieldset {
+    color: #000;
+    background: #fff;
+}
+
 #states, #actions, #logContainer, #folderContainer {
     clear: both;
+    overflow: auto;
 }
 
 #counterContainers .counterContainer {
