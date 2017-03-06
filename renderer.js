@@ -11,6 +11,7 @@ const electron = require('electron')
 const remote   = electron.remote
 const IPC      = electron.ipcRenderer
 
+let menu        = remote.Menu.getApplicationMenu()
 let opts        = remote.getCurrentWindow().opts
 let concurrency = opts.options.concurrency ? opts.options.concurrency : 1
 let watchDepth  = opts.options.depth       ? opts.options.depth : 2
@@ -40,6 +41,14 @@ const log = (str) => {
     logstream.info(str)
 }
 
+/* button and menu handles */
+let setupButton   = document.querySelector("#setup")
+let startButton   = document.querySelector("#start")
+let stopButton    = document.querySelector("#stop")
+let setupMenuItem = menu.items[0].submenu.items[0];
+let startMenuItem = menu.items[0].submenu.items[1];
+let stopMenuItem  = menu.items[0].submenu.items[2];
+
 /* log configuration information */
 log("watch depth=" + watchDepth)
 log("worker concurrency=" + concurrency)
@@ -61,7 +70,9 @@ const setupSelectionAction = (selection) => {
     folderSelection            = selection
     let folder_indicator       = document.querySelector("#folders")
     folder_indicator.innerHTML = folderSelection + " FastQ: " + fastqfile + " Log: " + logfile + " Model: " + modelfile.split("/").slice(-1)[0]
-    start.removeAttribute("disabled", "disabled")
+    startMenuItem.enabled      = true
+    startButton.removeAttribute("disabled")
+
     log("selected " + folderSelection)
 }
 
@@ -186,10 +197,13 @@ const checkWork = (qcb) => {
 	if(failure) {
 	    log(failure.toString() + " " + short_path(path))
 	    failureCount++
-	} else {
+	} else if(fastq) {
 	    log("end " + short_path(path))
 	    fastqstream.write(fastq.toString())
 	    successCount++
+	} else {
+	    log("failed to run job")
+	    failureCount++
 	}
 	/* immediately check for more work */
 	return cb()
@@ -209,9 +223,12 @@ const startAction = () => {
     workFailed  = 0
     workIndicatorInterval = setInterval(workIndicatorUpdate, 5000)
 
-    setup.setAttribute("disabled", "disabled")
-    start.setAttribute("disabled", "disabled")
-    stop.removeAttribute("disabled")
+    setupButton.setAttribute("disabled", "disabled")
+    startButton.setAttribute("disabled", "disabled")
+    stopButton.removeAttribute("disabled")
+    setupMenuItem.enabled = false
+    startMenuItem.enabled = false
+    stopMenuItem.enabled  = true
 
     let tmp = [folderSelection].map(function(o) {
 	return path.join(o, "**", "*.fast5")
@@ -252,9 +269,12 @@ const stopAction = () => {
     workIndicatorUpdate()
     clearInterval(workIndicatorInterval)
 
-    setup.removeAttribute("disabled")
-    start.removeAttribute("disabled")
-    stop.setAttribute("disabled", "disabled")
+    setupButton.removeAttribute("disabled")
+    startButton.removeAttribute("disabled")
+    stopButton.setAttribute("disabled", "disabled")
+    setupMenuItem.enabled = true
+    startMenuItem.enabled = true
+    stopMenuItem.enabled  = false
 
     log("closing fastq stream")
     fastqstream.end()
@@ -265,16 +285,13 @@ const stopAction = () => {
     log("stopped")
 }
 
-let setup = document.querySelector("#setup")
-setup.addEventListener('click', setupAction)
+setupButton.addEventListener('click', setupAction)
 window.addEventListener('setup', setupAction)
 
-let start = document.querySelector("#start")
-start.addEventListener('click', startAction)
+startButton.addEventListener('click', startAction)
 window.addEventListener('start', startAction)
 
-let stop = document.querySelector("#stop")
-stop.addEventListener('click', stopAction)
+stopButton.addEventListener('click', stopAction)
 window.addEventListener('stop', stopAction)
 
 IPC.on("menu-event", function(event, arg) {
@@ -283,9 +300,12 @@ IPC.on("menu-event", function(event, arg) {
 });
 
 /* initial button state */
-setup.removeAttribute("disabled")
-start.setAttribute("disabled", "disabled")
-stop.setAttribute("disabled", "disabled")
+setupButton.removeAttribute("disabled")
+startButton.setAttribute("disabled", "disabled")
+stopButton.setAttribute("disabled", "disabled")
+setupMenuItem.enabled=true
+startMenuItem.enabled=false
+stopMenuItem.enabled=false
 
 /* additional commandline arg handling */
 if(opts.options.input) {

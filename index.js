@@ -138,8 +138,9 @@ const getScriptPath = () => {
 
 const createPyProc = () => {
     let script = getScriptPath()
-    let port = '' + selectPort()
-    console.log(script)
+    let port   = '' + selectPort()
+
+    console.log(`child process using ${script}`)
 
     if (guessPackaged()) {
 	pyProc = require('child_process').execFile(script, [port])
@@ -149,7 +150,7 @@ const createPyProc = () => {
 
     if (pyProc != null) {
 	//console.log(pyProc)
-	console.log('child process success on port ' + port)
+	console.log(`child process success on port ${port}`)
     }
 }
 
