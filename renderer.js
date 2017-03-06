@@ -28,6 +28,18 @@ let logstream   = bunyan.createLogger({
     }]
 })
 
+/* logging setup */
+let logTranscript = document.querySelector("#log")
+logTranscript.innerHTML = (new Array(loglines)).join("\n")
+
+const log = (str) => {
+    let tmp                 = logTranscript.innerHTML
+    logTranscript.innerHTML = logTranscript.innerHTML.split(/\n/).splice(1, loglines).join("\n") + str + "\n"
+    logstream.info(str)
+}
+
+/* consumer/handoff for each child process */
+log("detected", opts.options.concurrency, "logical cpus")
 for (var i = 0; i < opts.options.concurrency; i+= 1) {
     let consumer = new Consumer({
 	id: i,
@@ -78,16 +90,6 @@ for (var i = 0; i < opts.options.concurrency; i+= 1) {
 	}
     })
     consumers.push(consumer)
-}
-
-/* logging setup */
-let logTranscript = document.querySelector("#log")
-logTranscript.innerHTML = (new Array(loglines)).join("\n")
-
-const log = (str) => {
-    let tmp                 = logTranscript.innerHTML
-    logTranscript.innerHTML = logTranscript.innerHTML.split(/\n/).splice(1, loglines).join("\n") + str + "\n"
-    logstream.info(str)
 }
 
 /* button and menu handles */
