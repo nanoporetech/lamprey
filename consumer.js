@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2017 Oxford Nanopore Technologies Ltd.
+ * Author: rmp
+ */
+/*global require, module */
 const zerorpc  = require("zerorpc")
 
 function Consumer(options) {
@@ -18,7 +23,7 @@ Consumer.prototype.workTimer = function () {
     let work = that.workChecker()
     if(work) {
 	that.client.invoke(work.func, work.path, work.model, (error, res) => {
-	    that.workComplete(error, res, work);
+	    that.workComplete(error, res, work)
             that.timer = setTimeout(() => {
 		that.workTimer()
 	    }, 1000)

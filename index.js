@@ -1,5 +1,8 @@
-// main.js
-
+/*
+ * Copyright (c) 2017 Oxford Nanopore Technologies Ltd.
+ * Author: rmp
+ */
+/*global require, module */
 const electron      = require('electron')
 const path          = require('path')
 const getopt        = require('node-getopt')
@@ -69,19 +72,19 @@ const createWindow = () => {
 		{
 		    label: 'Setup',
 		    click: (item, window) => {
-			mainWindow.webContents.send('menu-event', 'setup');
+			mainWindow.webContents.send('menu-event', 'setup')
 		    }
 		},
 		{
 		    label: 'Start',
 		    click: (item, window) => {
-			mainWindow.webContents.send('menu-event', 'start');
+			mainWindow.webContents.send('menu-event', 'start')
 		    }
 		},
 		{
 		    label: 'Stop',
 		    click: (item, window) => {
-			mainWindow.webContents.send('menu-event', 'stop');
+			mainWindow.webContents.send('menu-event', 'stop')
 		    }
 		},
 		{
@@ -101,7 +104,7 @@ const createWindow = () => {
     })
 }
 
-app.on('ready', createWindow);
+app.on('ready', createWindow)
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
 	app.quit()
@@ -157,7 +160,8 @@ const createPyProc = () => {
 	if (pyProc != null) {
 	    //console.log(pyProc)
 	    console.log(`child process ${i} on port ${port}`)
-	    pyProcs[i] = pyProc;
+	    pyProcs[i] = pyProc
+
 	} else {
 	    console.log(`child failed on port ${port}`)
 	}

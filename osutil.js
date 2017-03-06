@@ -1,11 +1,6 @@
-/* Copyright (c) 2014 Oxford Nanopore Technologies Ltd.
- * Author:          rpettett
- * Last Maintained: $Author$
- * Last Modified:   $Date$
- * Id:              $Id$
- * $HeadURL$
- * $LastChangedRevision$
- * $Revision$
+/*
+ * Copyright (c) 2017 Oxford Nanopore Technologies Ltd.
+ * Author: rmp
  */
 /*global require, module */
 var childproc = require('child_process');

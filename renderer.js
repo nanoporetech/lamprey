@@ -1,24 +1,27 @@
-// renderer.js
+/*
+ * Copyright (c) 2017 Oxford Nanopore Technologies Ltd.
+ * Author: rmp
+ */
+/*global require, module */
 
-const chokidar = require("chokidar")
-const path     = require("path")
-const bunyan   = require('bunyan')
-const fs       = require("fs")
-const Consumer = require('./consumer')
-const notifier = require('node-notifier');
-const electron = require('electron')
-const remote   = electron.remote
-const IPC      = electron.ipcRenderer
-
+const chokidar  = require("chokidar")
+const path      = require("path")
+const bunyan    = require('bunyan')
+const fs        = require("fs")
+const Consumer  = require('./consumer')
+const notifier  = require('node-notifier')
+const electron  = require('electron')
+const remote    = electron.remote
+const IPC       = electron.ipcRenderer
+const loglines  = 16
 let menu        = remote.Menu.getApplicationMenu()
 let opts        = remote.getCurrentWindow().opts
 let concurrency = opts.options.concurrency ? opts.options.concurrency : 1
-let watchDepth  = opts.options.depth       ? opts.options.depth    : 2
-let basePort    = opts.options.basePort    ? opts.options.basePort : 28320
-let logfile     = opts.options.log         ? opts.options.log      : "baserunner.log"
-let fastqfile   = opts.options.ofq         ? opts.options.ofq      : "out.fastq"
-let modelfile   = opts.options.model       ? opts.options.model    : path.join(remote.app.getAppPath(), "externals","nanonet","nanonet","data","r9_template.npy")
-const loglines  = 16
+let watchDepth  = opts.options.depth       ? opts.options.depth       : 2
+let basePort    = opts.options.basePort    ? opts.options.basePort    : 28320
+let logfile     = opts.options.log         ? opts.options.log         : "baserunner.log"
+let fastqfile   = opts.options.ofq         ? opts.options.ofq         : "out.fastq"
+let modelfile   = opts.options.model       ? opts.options.model       : path.join(remote.app.getAppPath(), "externals", "nanonet", "nanonet", "data", "r9_template.npy")
 let consumers   = []
 let fastqstream = null
 let logstream   = bunyan.createLogger({
@@ -43,10 +46,10 @@ log("detected", opts.options.concurrency, "logical cpus")
 for (var i = 0; i < opts.options.concurrency; i+= 1) {
     let consumer = new Consumer({
 	id: i,
-	port: basePort+i,
+	port: basePort + i,
 	check: () => {
 	    let job = workWaiting.shift()
-	    if(job) {
+	    if (job) {
 		job.startTime = new Date()
 		log("begin " + short_path(job.path))
 	    }
@@ -54,12 +57,12 @@ for (var i = 0; i < opts.options.concurrency; i+= 1) {
 	},
 	complete: (error, res, job) => {
 	    let endTime = new Date()
-	    let dTime   = endTime - job.startTime;
+	    let dTime   = endTime - job.startTime
 	    let path    = job.path || ""
 	    avgTime     = ((successCount + failureCount) * avgTime + dTime) / (1 + successCount + failureCount)
 	    etaIndicator.innerHTML = etaDate().toLocaleString()
 	    
-	    if(error) {
+	    if (error) {
 		log("error " + short_path(path))
 		log("message " + error)
 		console.error(error)
@@ -67,15 +70,16 @@ for (var i = 0; i < opts.options.concurrency; i+= 1) {
 		return
 	    }
 	    
-	    let fastq   = res[0];
-	    let failure = res[1];
-	    if(failure) {
+	    let fastq   = res[0]
+	    let failure = res[1]
+
+	    if (failure) {
 		log(failure.toString() + " " + short_path(path))
 		failureCount++
 		return
 	    }
 
-	    if(fastq) {
+	    if (fastq) {
 		log("end " + short_path(path))
 		fastqstream.write(fastq.toString())
 		successCount++
@@ -96,9 +100,9 @@ for (var i = 0; i < opts.options.concurrency; i+= 1) {
 let setupButton   = document.querySelector("#setup")
 let startButton   = document.querySelector("#start")
 let stopButton    = document.querySelector("#stop")
-let setupMenuItem = menu.items[0].submenu.items[0];
-let startMenuItem = menu.items[0].submenu.items[1];
-let stopMenuItem  = menu.items[0].submenu.items[2];
+let setupMenuItem = menu.items[0].submenu.items[0]
+let startMenuItem = menu.items[0].submenu.items[1]
+let stopMenuItem  = menu.items[0].submenu.items[2]
 
 /* log configuration information */
 log("watch depth=" + watchDepth)
@@ -133,7 +137,7 @@ const setupAction = () => {
 	properties: ['openDirectory']
     })
 
-    if(!selection) {
+    if (!selection) {
 	return
     }
 
@@ -156,7 +160,7 @@ const notify = (msg, title) => {
 	title: title ? title : "baserunner",
 	icon: path.join(__dirname, 'assets/baserunner80x80.png'),
 	message: msg
-    });
+    })
 }
 
 const workIndicatorUpdate = () => {
@@ -195,7 +199,7 @@ const etaDate = () => {
 
 /* start button action */
 const startAction = () => {
-    if(!folderSelection) {
+    if (!folderSelection) {
 	alert("please set up a folder")
 	return
     }
@@ -239,7 +243,7 @@ const startAction = () => {
 
 /* stop button action */
 const stopAction = () => {
-    if(!watcher) {
+    if (!watcher) {
 	alert("already stopped")
 	return
     }
@@ -280,9 +284,9 @@ stopButton.addEventListener('click', stopAction)
 window.addEventListener('stop', stopAction)
 
 IPC.on("menu-event", (event, arg) => {
-    console.log("menu-event handler", event, arg);
-    window.dispatchEvent(new Event(arg));
-});
+    console.log("menu-event handler", event, arg)
+    window.dispatchEvent(new Event(arg))
+})
 
 /* initial button state */
 setupButton.removeAttribute("disabled")
@@ -293,10 +297,10 @@ startMenuItem.enabled = false
 stopMenuItem.enabled  = false
 
 /* additional commandline arg handling */
-if(opts.options.input) {
+if (opts.options.input) {
     setupSelectionAction(opts.options.input)
 }
 
-if(opts.options.autostart) {
+if (opts.options.autostart) {
     startAction()
 }
