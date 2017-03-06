@@ -86,10 +86,9 @@ for (var i = 0; i < opts.options.concurrency; i+= 1) {
 		return
 	    }
 
-	    log("failed to run job")
+	    // didn't fail, but no fastq yielded
+	    log("no fastq " + short_path(path))
 	    failureCount++
-
-	    /* immediately check for more work */
 	    return
 	}
     })

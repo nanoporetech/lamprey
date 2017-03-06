@@ -11,7 +11,7 @@ function Consumer(options) {
     that.port         = options.port
     that.workChecker  = options.check
     that.workComplete = options.complete
-    that.client       = new zerorpc.Client(30, 20000)
+    that.client       = new zerorpc.Client({heartbeatInterval: 20000})
     that.client.connect("tcp://127.0.0.1:" + that.port)
     that.timer        = setTimeout(() => {
 	that.workTimer()	
