@@ -11,7 +11,7 @@ pack:
   script:
     - apt-get update
     - apt-get dist-upgrade -y
-    - apt-get install -y --force-yes curl jq
+    - apt-get install -y --force-yes curl jq libzmq-dev libzmq1
     - curl -sL https://deb.nodesource.com/setup_7.x > nodejs-repo
     - chmod +x nodejs-repo
     - ./nodejs-repo
