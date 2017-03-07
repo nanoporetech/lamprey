@@ -12,7 +12,7 @@ pack:
     - apt-get update
     - apt-get dist-upgrade -y
     - apt-get install -y --force-yes curl jq
-    - curl -sL https://deb.nodesource.com/setup_6.x > nodejs-repo
+    - curl -sL https://deb.nodesource.com/setup_7.x > nodejs-repo
     - chmod +x nodejs-repo
     - ./nodejs-repo
     - apt-get install -y --force-yes nodejs node-gyp libzmq-dev build-essential git python-pip libpython-dev pkg-config libhdf5-dev libatlas-dev python-h5py python-numpy
