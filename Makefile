@@ -59,8 +59,8 @@ pack: deps
 deb: pack
 	touch tmp
 	rm -rf tmp
-	mkdir -p tmp/opt/ONT tmp/DEBIAN tmp/usr/share/applications tmp/usr/share/icons/hicolor/48x48/apps
-	cp -pR $(APPNAME) tmp/opt/ONT
+	mkdir -p tmp/opt/ONT/baserunner tmp/DEBIAN tmp/usr/share/applications tmp/usr/share/icons/hicolor/48x48/apps
+	cp -pR $(APPNAME)/* tmp/opt/ONT/baserunner/
 	cp tools/linux/debian-control tmp/DEBIAN/control
 	cp tools/linux/baserunner.desktop tmp/usr/share/applications/
 	cp assets/baserunner48x48.png tmp/usr/share/icons/hicolor/48x48/apps/baserunner.png
