@@ -61,9 +61,10 @@ deb: pack
 	rm -rf tmp
 	mkdir -p tmp/opt/ONT
 	cp -pR $(APPNAME) tmp/opt/ONT
-	cp tools/linux/debian-control tmp/dist/DEBIAN/control
+	cp tools/linux/debian-control tmp/DEBIAN/control
 	cp tools/linux/baserunner.desktop tmp/usr/share/applications/
 	cp assets/baserunner48x48.png tmp/usr/share/icons/hicolor/48x48/apps/baserunner.png
 	sed -i "s/VERSION/$(VERSION)/g" tmp/DEBIAN/control
+	perl -i -pe 's{INSTALLED_SIZE}{[split /\\s+/smx, qx[du -sk tmp]]->[0]}e' tmp/DEBIAN/control
 	chmod -R ugo+r tmp
 	fakeroot dpkg -b tmp ont-baserunner-$(VERSION).deb
