@@ -29,7 +29,8 @@ deps_js:
 #	cd externals/nanonet ; git checkout python3 ; make osx_zmqcall
 
 deps_py:
-	pip install --user zerorpc pyinstaller myriad h5py future pyzmq
+	pip install --user zerorpc pyinstaller myriad h5py future
+	pip install --user pyzmq --zmq=bundled
 #	pip install --user pyzmq --no-binary :all:
 	cd externals/nanonet ; python setup.py develop --user
 
