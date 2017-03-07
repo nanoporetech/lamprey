@@ -5,13 +5,14 @@ npm_config_disturl=https://atom.io/download/electron
 npm_config_runtime=electron
 npm_config_build_from_source=true
 
-MAJOR   ?= 0
-MINOR   ?= 0
-SUB     ?= 0
+MAJOR   ?= $(shell jq -r '.version' < package.json | cut -d . -f 1)
+MINOR   ?= $(shell jq -r '.version' < package.json | cut -d . -f 2)
+SUB     ?= $(shell jq -r '.version' < package.json | cut -d . -f 3)
 PATCH   ?= 1
-APPNAME ?= baserunner-$(shell uname -s)-$(MAJOR).$(MINOR).$(SUB).$(PATCH)
-OSX_TEAM_ID=
-OSX_BUNDLE_ID=LJKTDEZN58
+VERSION = $(MAJOR).$(MINOR).$(SUB).$(PATCH)
+APPNAME ?= baserunner-$(shell uname -s)-$(VERSION)
+#OSX_TEAM_ID=
+#OSX_BUNDLE_ID=LJKTDEZN58
 
 all: pack
 
@@ -54,3 +55,15 @@ pack: deps
 #	tools/mac/sign-app $(APPNAME)
 #	codesign --deep --force --verbose --sign "com.nanoporetech.baserunner" $(APPNAME)
 #	codesign --verify -vvvv $(APPNAME) and spctl -a -vvvv $(APPNAME)
+
+deb: pack
+	touch tmp
+	rm -rf tmp
+	mkdir -p tmp/opt/ONT
+	cp -pR $(APPNAME) tmp/opt/ONT
+	cp tools/linux/debian-control tmp/dist/DEBIAN/control
+	cp tools/linux/baserunner.desktop tmp/usr/share/applications/
+	cp assets/baserunner48x48.png tmp/usr/share/icons/hicolor/48x48/apps/baserunner.png
+	sed -i "s/VERSION/$(VERSION)/g" tmp/DEBIAN/control
+	chmod -R ugo+r tmp
+	fakeroot dpkg -b tmp ont-baserunner-$(VERSION).deb
