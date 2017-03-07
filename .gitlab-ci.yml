@@ -11,11 +11,11 @@ pack:
   script:
     - apt-get update
     - apt-get dist-upgrade -y
-    - apt-get install -y --force-yes curl jq libzmq-dev libzmq1
+    - apt-get install -y --force-yes curl
     - curl -sL https://deb.nodesource.com/setup_7.x > nodejs-repo
     - chmod +x nodejs-repo
     - ./nodejs-repo
-    - apt-get install -y --force-yes nodejs node-gyp libzmq-dev build-essential git python-pip libpython-dev pkg-config libhdf5-dev libatlas-dev python-h5py python-numpy
+    - apt-get install -y --force-yes nodejs node-gyp jq build-essential git python-pip libpython-dev pkg-config libhdf5-dev libatlas-dev python-h5py python-numpy python-zmq
     - make pack
     - tar -czvf `ls -d baserunner-*`.tar.gz baserunner-*
   artifacts:
