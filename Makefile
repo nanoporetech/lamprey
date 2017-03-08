@@ -35,6 +35,9 @@ deps_py:
 #	pip install --user pyzmq --no-binary :all:
 	cd externals/nanonet ; python setup.py develop --user
 
+deps_py_win:
+	cd externals/nanonet ; python setup.py develop mingw
+
 py: deps_py
 	touch dist
 	rm -rf dist
@@ -42,10 +45,10 @@ py: deps_py
 
 deps: clean
 	git submodule update --init --recursive
-	make deps_js deps_py
+	$(MAKE) deps_js deps_py
 
 pack: deps
-	make py
+	$(MAKE) py
 	touch baserunner-darwin-x64
 	rm -rf baserunner-*
 	./node_modules/.bin/electron-packager . --icon="assets/baserunner512x512" --overwrite --appBundleId="com.nanoporetech.baserunner"
@@ -68,3 +71,6 @@ deb: pack
 	perl -i -pe 's{INSTALLED_SIZE}{[split /\s+/smx, qx[du -sk tmp]]->[0]}e' tmp/DEBIAN/control
 	chmod -R ugo+r tmp
 	fakeroot dpkg -b tmp ont-baserunner-$(VERSION).deb
+
+dmg: pack
+	hdiutil create "baserunner-$(VERSION).dmg" -ov -volname "baserunner $(VERSION)" -format UDZO -imagekey zlib-level=9 -size 250M -fs HFS+ -srcfolder baserunner-Darwin-$(VERSION)
