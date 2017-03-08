@@ -1,0 +1,10 @@
+Package: ont-baserunner
+Version: VERSION
+Section: base
+Priority: optional
+Architecture: amd64
+Source: ont-baserunner
+Depends: libxcursor1, libgconf2-4, libpangocairo-1.0-0, libxss1, libatk1.0-0, libgtk2.0-0, libx11-xcb1, libxtst6, libzmq3
+Installed-Size: INSTALLED_SIZE
+Maintainer: Roger Pettett <roger.pettett@metrichor.com>
+Description: ONT GUI wrapper around nanonet

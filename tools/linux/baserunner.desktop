@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Encoding=UTF-8
+Name=ONT Baserunner
+Comment=ONT Baserunner GUI
+Exec=/opt/ONT/baserunner/baserunner
+Icon=baserunner.png
+Terminal=false
+Categories=Application

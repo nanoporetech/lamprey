@@ -23,7 +23,7 @@ class RunnerApi(object):
         return text
 
 def parse_port():
-    return "4242"
+    return sys.argv[1]
 
 def main():
     addr = 'tcp://127.0.0.1:' + parse_port()

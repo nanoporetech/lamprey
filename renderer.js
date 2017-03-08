@@ -1,33 +1,35 @@
-// renderer.js
+/*
+ * Copyright (c) 2017 Oxford Nanopore Technologies Ltd.
+ * Author: rmp
+ */
+/*global require, module */
 
-const zerorpc  = require("zerorpc")
-const chokidar = require("chokidar")
-const path     = require("path")
-const queue    = require("queue")
-const bunyan   = require('bunyan')
-const fs       = require("fs")
-const notifier = require('node-notifier');
-const electron = require('electron')
-const remote   = electron.remote
-
+const chokidar  = require("chokidar")
+const path      = require("path")
+const bunyan    = require('bunyan')
+const fs        = require("fs")
+const Consumer  = require('./consumer')
+const notifier  = require('node-notifier')
+const electron  = require('electron')
+const remote    = electron.remote
+const IPC       = electron.ipcRenderer
+const loglines  = 16
+let menu        = remote.Menu.getApplicationMenu()
 let opts        = remote.getCurrentWindow().opts
 let concurrency = opts.options.concurrency ? opts.options.concurrency : 1
-let watchDepth  = opts.options.depth       ? opts.options.depth : 2
-let logfile     = opts.options.log         ? opts.options.log   : "baserunner.log"
-let fastqfile   = opts.options.ofq         ? opts.options.ofq   : "out.fastq"
-let modelfile   = opts.options.model       ? opts.options.model : path.join(remote.app.getAppPath(), "externals","nanonet","nanonet","data","r9_template.npy")
-const loglines  = 16
+let watchDepth  = opts.options.depth       ? opts.options.depth       : 2
+let basePort    = opts.options.basePort    ? opts.options.basePort    : 28320
+let logfile     = opts.options.log         ? opts.options.log         : "baserunner.log"
+let fastqfile   = opts.options.ofq         ? opts.options.ofq         : "out.fastq"
+let modelfile   = opts.options.model       ? opts.options.model       : path.join(remote.app.getAppPath(), "externals", "nanonet", "nanonet", "data", "r9_template.npy")
+let consumers   = []
+let fastqstream = null
 let logstream   = bunyan.createLogger({
     name: "baserunner",
     streams: [{
         path: logfile
     }]
 })
-let fastqstream = null
-
-/* zerorpc setup */
-let client = new zerorpc.Client()
-client.connect("tcp://127.0.0.1:4242")
 
 /* logging setup */
 let logTranscript = document.querySelector("#log")
@@ -38,6 +40,68 @@ const log = (str) => {
     logTranscript.innerHTML = logTranscript.innerHTML.split(/\n/).splice(1, loglines).join("\n") + str + "\n"
     logstream.info(str)
 }
+
+/* consumer/handoff for each child process */
+log("detected", opts.options.concurrency, "logical cpus")
+for (var i = 0; i < opts.options.concurrency; i+= 1) {
+    let consumer = new Consumer({
+	id: i,
+	port: basePort + i,
+	check: () => {
+	    let job = workWaiting.shift()
+	    if (job) {
+		job.startTime = new Date()
+		log("begin " + short_path(job.path))
+	    }
+	    return job
+	},
+	complete: (error, res, job) => {
+	    let endTime = new Date()
+	    let dTime   = endTime - job.startTime
+	    let path    = job.path || ""
+	    avgTime     = ((successCount + failureCount) * avgTime + dTime) / (1 + successCount + failureCount)
+	    etaIndicator.innerHTML = etaDate().toLocaleString()
+	    
+	    if (error) {
+		log("error " + short_path(path))
+		log("message " + error)
+		console.error(error)
+		failureCount++
+		return
+	    }
+	    
+	    let fastq   = res[0]
+	    let failure = res[1]
+
+	    if (failure) {
+		log(failure.toString() + " " + short_path(path))
+		failureCount++
+		return
+	    }
+
+	    if (fastq) {
+		log("end " + short_path(path))
+		fastqstream.write(fastq.toString())
+		successCount++
+		return
+	    }
+
+	    // didn't fail, but no fastq yielded
+	    log("no fastq " + short_path(path))
+	    failureCount++
+	    return
+	}
+    })
+    consumers.push(consumer)
+}
+
+/* button and menu handles */
+let setupButton   = document.querySelector("#setup")
+let startButton   = document.querySelector("#start")
+let stopButton    = document.querySelector("#stop")
+let setupMenuItem = menu.items[0].submenu.items[0]
+let startMenuItem = menu.items[0].submenu.items[1]
+let stopMenuItem  = menu.items[0].submenu.items[2]
 
 /* log configuration information */
 log("watch depth=" + watchDepth)
@@ -53,28 +117,31 @@ let etaIndicator = document.querySelector("#etaCounter")
 let stateIndicator       = document.querySelector("#state")
 stateIndicator.innerHTML = "stopped"
 
+/* setup input folder */
+let folderSelection = null
+
 const setupSelectionAction = (selection) => {
     folderSelection            = selection
     let folder_indicator       = document.querySelector("#folders")
     folder_indicator.innerHTML = folderSelection + " FastQ: " + fastqfile + " Log: " + logfile + " Model: " + modelfile.split("/").slice(-1)[0]
-    start.removeAttribute("disabled", "disabled")
+    startMenuItem.enabled      = true
+    startButton.removeAttribute("disabled")
+
     log("selected " + folderSelection)
 }
 
 /* setup button action */
-let setup = document.querySelector("#setup")
-let folderSelection = null
-setup.addEventListener('click', () => {
+const setupAction = () => {
     let selection = remote.dialog.showOpenDialog(null, {
 	properties: ['openDirectory']
     })
 
-    if(!selection) {
+    if (!selection) {
 	return
     }
 
     setupSelectionAction(selection[0]) // only keep the first selection
-})
+}
 
 let watcher      = null
 let workWaiting  = new Array()
@@ -87,17 +154,12 @@ let counters     = {
     total:   document.querySelector("#totalCounter"),
     queued:  document.querySelector("#queuedCounter"),
 }
-let workQueue    = queue({
-    concurrency: concurrency,
-    autostart: 1
-})
-
 const notify = (msg, title) => {
     return notifier.notify({
 	title: title ? title : "baserunner",
 	icon: path.join(__dirname, 'assets/baserunner80x80.png'),
 	message: msg
-    });
+    })
 }
 
 const workIndicatorUpdate = () => {
@@ -134,114 +196,59 @@ const etaDate = () => {
     return new Date((new Date()).getTime() + avgTime * workWaiting.length)
 }
 
-const checkWork = (qcb) => {
-
-    if(workWaiting.length === 0 &&
-       (new Date()) > etaDate()) {
-	/* autostop */
-	notify("termination condition reached")
-	log("autostopping")
-	stopAction()
-	qcb() // come back and recheck state in a bit
-    }
-
-    let cb = () => {
-	workIndicatorUpdate()
-	if(stateIndicator.innerHTML !== "stopped") {
-	    workQueue.push(checkWork) // self-perpetuating
-	}
-	qcb()
-    }
-
-    let len = workWaiting.length
-    if(!len) {
-	/* no work to do. wait for a bit */
-	log("nothing to do")
-	setTimeout( () => { cb(); }, 5000)
-	return
-    }
-	
-    let path = workWaiting.shift()
-    log("begin " + short_path(path))
-    let startTime = new Date()
-
-    client.invoke("process_read", path, modelfile, (error, res) => {
-	let endTime = new Date()
-	let dTime   = endTime-startTime;
-	avgTime     = ((successCount + failureCount) * avgTime + dTime) / (1 + successCount + failureCount)
-	etaIndicator.innerHTML = etaDate().toLocaleString()
-	
-	if(error) {
-	    log("error " + short_path(path))
-	    log("message " + error)
-	    console.error(error)
-	    failureCount++
-	    return cb()
-	}
-
-	let fastq   = res[0];
-	let failure = res[1];
-	if(failure) {
-	    log(failure.toString() + " " + short_path(path))
-	    failureCount++
-	} else {
-	    log("end " + short_path(path))
-	    fastqstream.write(fastq.toString())
-	    successCount++
-	}
-	/* immediately check for more work */
-	return cb()
-    })
-}
-
 /* start button action */
 const startAction = () => {
-    if(!folderSelection) {
+    if (!folderSelection) {
 	alert("please set up a folder")
 	return
     }
     log("selected " + folderSelection)
 
-    fastqstream = fs.createWriteStream(fastqfile)
-    workDone    = 0
-    workFailed  = 0
+    fastqstream           = fs.createWriteStream(fastqfile)
+    workDone              = 0
+    workFailed            = 0
     workIndicatorInterval = setInterval(workIndicatorUpdate, 5000)
 
-    setup.setAttribute("disabled", "disabled")
-    start.setAttribute("disabled", "disabled")
-    stop.removeAttribute("disabled")
+    setupButton.setAttribute("disabled", "disabled")
+    startButton.setAttribute("disabled", "disabled")
+    stopButton.removeAttribute("disabled")
+    setupMenuItem.enabled = false
+    startMenuItem.enabled = false
+    stopMenuItem.enabled  = true
 
-    let tmp = [folderSelection].map(function(o) {
-	return path.join(o, "**", "*.fast5")
-    })
+    let tmp = [folderSelection]
+	.map((o) => {
+	    return path.join(o, "**", "*.fast5")
+	})
 
-    watcher = chokidar.watch(tmp, {
-	depth: watchDepth,
-	ignored: /(^|[\/\\])\../
-    })
+    watcher = chokidar
+	.watch(tmp, {
+	    depth: watchDepth,
+	    ignored: /(^|[\/\\])\../
+	})
 	.on('add', (path, stats) => {
 	    log("queued " + short_path(path))
-	    workWaiting.push(path)
+	    workWaiting.push({
+		func: 'process_read',
+		path: path,
+		model: modelfile
+	    })
 	})
     stateIndicator.innerHTML = "running"
 
     /* kick off */
-    checkWork(() => { })
     notify("starting")
 }
 
 /* stop button action */
 const stopAction = () => {
-    if(!watcher) {
+    if (!watcher) {
 	alert("already stopped")
 	return
     }
 
     log("stopping file watcher")
     watcher.close()
-
-    log("stopping workers")
-    workQueue.end("stopping")
 
     log("emptying queue")
     workWaiting=[]
@@ -250,9 +257,12 @@ const stopAction = () => {
     workIndicatorUpdate()
     clearInterval(workIndicatorInterval)
 
-    setup.removeAttribute("disabled")
-    start.removeAttribute("disabled")
-    stop.setAttribute("disabled", "disabled")
+    setupButton.removeAttribute("disabled")
+    startButton.removeAttribute("disabled")
+    stopButton.setAttribute("disabled", "disabled")
+    setupMenuItem.enabled = true
+    startMenuItem.enabled = true
+    stopMenuItem.enabled  = false
 
     log("closing fastq stream")
     fastqstream.end()
@@ -263,22 +273,33 @@ const stopAction = () => {
     log("stopped")
 }
 
-let start = document.querySelector("#start")
-start.addEventListener('click', startAction)
+setupButton.addEventListener('click', setupAction)
+window.addEventListener('setup', setupAction)
 
-let stop = document.querySelector("#stop")
-stop.addEventListener('click', stopAction)
+startButton.addEventListener('click', startAction)
+window.addEventListener('start', startAction)
+
+stopButton.addEventListener('click', stopAction)
+window.addEventListener('stop', stopAction)
+
+IPC.on("menu-event", (event, arg) => {
+    console.log("menu-event handler", event, arg)
+    window.dispatchEvent(new Event(arg))
+})
 
 /* initial button state */
-setup.removeAttribute("disabled")
-start.setAttribute("disabled", "disabled")
-stop.setAttribute("disabled", "disabled")
+setupButton.removeAttribute("disabled")
+startButton.setAttribute("disabled", "disabled")
+stopButton.setAttribute("disabled", "disabled")
+setupMenuItem.enabled = true
+startMenuItem.enabled = false
+stopMenuItem.enabled  = false
 
 /* additional commandline arg handling */
-if(opts.options.input) {
+if (opts.options.input) {
     setupSelectionAction(opts.options.input)
 }
 
-if(opts.options.autostart) {
+if (opts.options.autostart) {
     startAction()
 }
