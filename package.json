@@ -5,7 +5,6 @@
     "start": "electron ."
   },
   "devDependencies": {
-    "photon": "git+https://github.com/connors/photon.git",
     "electron": "^1.6.1",
     "electron-packager": "^8.5.2"
   },

@@ -10,11 +10,16 @@ MINOR   ?= $(shell jq -r '.version' < package.json | cut -d . -f 2)
 SUB     ?= $(shell jq -r '.version' < package.json | cut -d . -f 3)
 PATCH   ?= 1
 VERSION = $(MAJOR).$(MINOR).$(SUB).$(PATCH)
-APPNAME ?= lamprey-$(shell uname -s)-$(VERSION)
+OS      = $(shell uname -s)
+APPNAME ?= lamprey-$(OS)-$(VERSION)
 #OSX_TEAM_ID=
 #OSX_BUNDLE_ID=LJKTDEZN58
 
-all: pack
+all: $(OS)
+
+Darwin: dmg
+
+Linux: deb
 
 clean:
 	touch node_modules
@@ -73,4 +78,6 @@ deb: pack
 	fakeroot dpkg -b tmp ont-lamprey-$(VERSION).deb
 
 dmg: pack
+	touch lamprey.dmg
+	rm lamprey*dmg
 	hdiutil create "lamprey-$(VERSION).dmg" -ov -volname "lamprey $(VERSION)" -format UDZO -imagekey zlib-level=9 -size 250M -fs HFS+ -srcfolder lamprey-Darwin-$(VERSION)

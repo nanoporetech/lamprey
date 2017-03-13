@@ -4,11 +4,11 @@ __pycache__
 bin/
 include/
 lib/
-baserunner-*
+lamprey-*
 node_modules/
 pip-selfcheck.json
 dist/
 build
 .node-gyp
-baserunner.log
+lamprey.log
 out.fastq
