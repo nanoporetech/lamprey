@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Encoding=UTF-8
+Name=ONT Lamprey
+Comment=ONT Lamprey GUI
+Exec=/opt/ONT/lamprey/lamprey
+Icon=lamprey.png
+Terminal=false
+Categories=Application

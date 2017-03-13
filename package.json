@@ -1,11 +1,10 @@
 {
-  "name": "baserunner",
-  "version": "0.1.0",
+  "name": "lamprey",
+  "version": "0.1.1",
   "scripts": {
     "start": "electron ."
   },
   "devDependencies": {
-    "photon": "git+https://github.com/connors/photon.git",
     "electron": "^1.6.1",
     "electron-packager": "^8.5.2"
   },

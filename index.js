@@ -18,7 +18,7 @@ var opts = getopt.create([
     ["h", "help",            "This help"],
     ["i", "input=ARG",       "Input folder"],
     ["o", "ofq=ARG",         "Output FastQ file Default=out.fastq"],
-    ["l", "log=ARG",         "Log file. Default=baserunner.log"],
+    ["l", "log=ARG",         "Log file. Default=lamprey.log"],
     ["m", "model=ARG",       "Model file. Default=internal r9_template.npy"],
     ["c", "concurrency=ARG", "Worker concurrency. Default = 1"],
     ["d", "depth=ARG",       "Folder watch depth. Default = 2"],
@@ -34,7 +34,7 @@ if(opts.options.autostart && !opts.options.input) {
 }
 
 if(!opts.options.log) {
-    opts.options.log = path.join(app.getPath('home'), "baserunner.log")
+    opts.options.log = path.join(app.getPath('home'), "lamprey.log")
 }
 
 if(!opts.options.ofq) {
@@ -67,7 +67,7 @@ const createWindow = () => {
 
     var menu = Menu.buildFromTemplate([
 	{
-	    label: 'Baserunner',
+	    label: 'Lamprey',
 	    submenu: [
 		{
 		    label: 'Setup',
