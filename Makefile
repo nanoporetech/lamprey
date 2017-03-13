@@ -50,26 +50,17 @@ deps_mac:
 deps_js:
 	npm_config_target=$(npm_config_target) npm_config_arch=$(npm_config_arch) npm_config_target_arch=$(npm_config_target_arch) npm_config_disturl=$(npm_config_disturl) npm_config_runtime=$(npm_config_runtime) npm_config_build_from_source=$(npm_config_build_from_source) npm install
 
-#py3:
-#	cd externals/nanonet ; git checkout python3 ; make osx_zmqcall
-
 deps_py:
-	pip install --user zerorpc pyinstaller myriad future pyzmq
-#	pip install --user pyzmq --zmq=bundled
-#	pip install --user pyzmq --no-binary :all:
+	pip install --user zerorpc pyinstaller pyzmq
 	$(MAKE) deps_py_$(OS)
 
 deps_py_linux:
-	pip install --user h5py
 	cd externals/nanonet ; python setup.py develop --user
 
 deps_py_mac:
-	pip install --user h5py
 	cd externals/nanonet ; python setup.py develop --user
 
 deps_py_win:
-#	HDF5_DIR="C:\Program Files\HDF_Group\HDF5\1.8.18" pip install --user h5py
-	pip install --user tools/win/wheels/h5py-2.6.0-cp36-cp36m-win_amd64.whl
 	cd externals/nanonet ; python setup.py develop mingw
 
 py: deps_py
