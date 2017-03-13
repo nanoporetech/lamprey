@@ -10,7 +10,7 @@ MINOR   ?= $(shell jq -r '.version' < package.json | cut -d . -f 2)
 SUB     ?= $(shell jq -r '.version' < package.json | cut -d . -f 3)
 PATCH   ?= 1
 VERSION = $(MAJOR).$(MINOR).$(SUB).$(PATCH)
-APPNAME ?= baserunner-$(shell uname -s)-$(VERSION)
+APPNAME ?= lamprey-$(shell uname -s)-$(VERSION)
 #OSX_TEAM_ID=
 #OSX_BUNDLE_ID=LJKTDEZN58
 
@@ -18,7 +18,7 @@ all: pack
 
 clean:
 	touch node_modules
-	rm -rf ~/.node-gyp ~/.electron-gyp ./node_modules baserunner-* include lib .Python pip-selfcheck.json bin build externals/nanonet
+	rm -rf ~/.node-gyp ~/.electron-gyp ./node_modules lamprey-* include lib .Python pip-selfcheck.json bin build externals/nanonet
 
 deps_mac:
 	brew install zmq
@@ -49,28 +49,28 @@ deps: clean
 
 pack: deps
 	$(MAKE) py
-	touch baserunner-darwin-x64
-	rm -rf baserunner-*
-	./node_modules/.bin/electron-packager . --icon="assets/baserunner512x512" --overwrite --appBundleId="com.nanoporetech.baserunner"
-	mv baserunner-* $(APPNAME)
+	touch lamprey-darwin-x64
+	rm -rf lamprey-*
+	./node_modules/.bin/electron-packager . --icon="assets/lamprey512x512" --overwrite --appBundleId="com.nanoporetech.lamprey"
+	mv lamprey-* $(APPNAME)
 
 #sign:
 #	tools/mac/sign-app $(APPNAME)
-#	codesign --deep --force --verbose --sign "com.nanoporetech.baserunner" $(APPNAME)
+#	codesign --deep --force --verbose --sign "com.nanoporetech.lamprey" $(APPNAME)
 #	codesign --verify -vvvv $(APPNAME) and spctl -a -vvvv $(APPNAME)
 
 deb: pack
 	touch tmp
 	rm -rf tmp
-	mkdir -p tmp/opt/ONT/baserunner tmp/DEBIAN tmp/usr/share/applications tmp/usr/share/icons/hicolor/48x48/apps
-	cp -pR $(APPNAME)/* tmp/opt/ONT/baserunner/
+	mkdir -p tmp/opt/ONT/lamprey tmp/DEBIAN tmp/usr/share/applications tmp/usr/share/icons/hicolor/48x48/apps
+	cp -pR $(APPNAME)/* tmp/opt/ONT/lamprey/
 	cp tools/linux/debian-control tmp/DEBIAN/control
-	cp tools/linux/baserunner.desktop tmp/usr/share/applications/
-	cp assets/baserunner48x48.png tmp/usr/share/icons/hicolor/48x48/apps/baserunner.png
+	cp tools/linux/lamprey.desktop tmp/usr/share/applications/
+	cp assets/lamprey48x48.png tmp/usr/share/icons/hicolor/48x48/apps/lamprey.png
 	sed -i "s/VERSION/$(VERSION)/g" tmp/DEBIAN/control
 	perl -i -pe 's{INSTALLED_SIZE}{[split /\s+/smx, qx[du -sk tmp]]->[0]}e' tmp/DEBIAN/control
 	chmod -R ugo+r tmp
-	fakeroot dpkg -b tmp ont-baserunner-$(VERSION).deb
+	fakeroot dpkg -b tmp ont-lamprey-$(VERSION).deb
 
 dmg: pack
-	hdiutil create "baserunner-$(VERSION).dmg" -ov -volname "baserunner $(VERSION)" -format UDZO -imagekey zlib-level=9 -size 250M -fs HFS+ -srcfolder baserunner-Darwin-$(VERSION)
+	hdiutil create "lamprey-$(VERSION).dmg" -ov -volname "lamprey $(VERSION)" -format UDZO -imagekey zlib-level=9 -size 250M -fs HFS+ -srcfolder lamprey-Darwin-$(VERSION)

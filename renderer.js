@@ -19,13 +19,13 @@ let opts        = remote.getCurrentWindow().opts
 let concurrency = opts.options.concurrency ? opts.options.concurrency : 1
 let watchDepth  = opts.options.depth       ? opts.options.depth       : 2
 let basePort    = opts.options.basePort    ? opts.options.basePort    : 28320
-let logfile     = opts.options.log         ? opts.options.log         : "baserunner.log"
+let logfile     = opts.options.log         ? opts.options.log         : "lamprey.log"
 let fastqfile   = opts.options.ofq         ? opts.options.ofq         : "out.fastq"
 let modelfile   = opts.options.model       ? opts.options.model       : path.join(remote.app.getAppPath(), "externals", "nanonet", "nanonet", "data", "r9_template.npy")
 let consumers   = []
 let fastqstream = null
 let logstream   = bunyan.createLogger({
-    name: "baserunner",
+    name: "lamprey",
     streams: [{
         path: logfile
     }]
@@ -156,8 +156,8 @@ let counters     = {
 }
 const notify = (msg, title) => {
     return notifier.notify({
-	title: title ? title : "baserunner",
-	icon: path.join(__dirname, 'assets/baserunner80x80.png'),
+	title: title ? title : "lamprey",
+	icon: path.join(__dirname, 'assets/lamprey80x80.png'),
 	message: msg
     })
 }
