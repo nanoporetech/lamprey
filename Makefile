@@ -10,16 +10,35 @@ MINOR   ?= $(shell jq -r '.version' < package.json | cut -d . -f 2)
 SUB     ?= $(shell jq -r '.version' < package.json | cut -d . -f 3)
 PATCH   ?= 1
 VERSION = $(MAJOR).$(MINOR).$(SUB).$(PATCH)
-OS      = $(shell uname -s)
+OS      ?= $(shell uname -s)
+
+ifeq ($(OS),Windows_NT)
+    OS = win
+else
+    OS := $(shell uname -s)
+    ifeq ($(UNAME_S),Linux)
+        OS = linux
+    endif
+    ifeq ($(UNAME_S),Darwin)
+        OS = mac
+    endif
+endif
+
 APPNAME ?= lamprey-$(OS)-$(VERSION)
 #OSX_TEAM_ID=
 #OSX_BUNDLE_ID=LJKTDEZN58
 
+
+
+
 all: $(OS)
 
-Darwin: dmg
+mac: dmg
 
-Linux: deb
+linux: deb
+
+win:
+	echo "working on it"
 
 clean:
 	touch node_modules
@@ -38,6 +57,12 @@ deps_py:
 	pip install --user zerorpc pyinstaller myriad h5py future pyzmq
 #	pip install --user pyzmq --zmq=bundled
 #	pip install --user pyzmq --no-binary :all:
+	$(MAKE) deps_py_$(OS)
+
+deps_py_linux:
+	cd externals/nanonet ; python setup.py develop --user
+
+deps_py_mac:
 	cd externals/nanonet ; python setup.py develop --user
 
 deps_py_win:
