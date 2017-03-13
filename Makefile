@@ -54,18 +54,22 @@ deps_js:
 #	cd externals/nanonet ; git checkout python3 ; make osx_zmqcall
 
 deps_py:
-	pip install --user zerorpc pyinstaller myriad h5py future pyzmq
+	pip install --user zerorpc pyinstaller myriad future pyzmq
 #	pip install --user pyzmq --zmq=bundled
 #	pip install --user pyzmq --no-binary :all:
 	$(MAKE) deps_py_$(OS)
 
 deps_py_linux:
+	pip install --user h5py
 	cd externals/nanonet ; python setup.py develop --user
 
 deps_py_mac:
+	pip install --user h5py
 	cd externals/nanonet ; python setup.py develop --user
 
 deps_py_win:
+#	HDF5_DIR="C:\Program Files\HDF_Group\HDF5\1.8.18" pip install --user h5py
+	pip install --user tools/win/wheels/h5py-2.6.0-cp36-cp36m-win_amd64.whl
 	cd externals/nanonet ; python setup.py develop mingw
 
 py: deps_py
