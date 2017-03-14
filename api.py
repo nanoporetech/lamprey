@@ -1,6 +1,6 @@
-from __future__ import print_function
+#from __future__ import print_function
 # import UserList just to make the compiler happy
-from future.moves.collections import UserList
+#from future.moves.collections import UserList
 
 import sys, os, zerorpc
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/externals/nanonet")
