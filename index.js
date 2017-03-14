@@ -192,7 +192,7 @@ const cpuCheck = () => {
     osutil.procs((err, logical) => {
 	if(err) {
 	    console.log("error discovering logical cpus", err)
-	    opts.options.concurrency = 4
+	    opts.options.concurrency = 1
 	    return createPyProc()
 	}
 	console.log(logical, "logical cpus detected")
