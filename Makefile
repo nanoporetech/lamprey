@@ -75,7 +75,7 @@ pack: deps
 	touch lamprey-darwin-x64
 	rm -rf lamprey-*
 	./node_modules/.bin/electron-packager . --icon="assets/lamprey512x512" --overwrite --appBundleId="com.nanoporetech.lamprey"
-	rm -rf lamprey-*/resources/app/tools lamprey-*/resources/app/externals
+	rm -rf lamprey-*/resources/app/tools lamprey-*/resources/app/externals lamprey-*/resources/app/build
 	mv lamprey-* $(APPNAME)
 
 #sign:

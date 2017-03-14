@@ -15,7 +15,7 @@ if system == 'Darwin':
     ]
 
 a = Analysis(['api.py'],
-             pathex=['/Users/rmp/dev/ONT/lamprey'],
+             pathex=[],
              binaries=binaries,
              datas=datas,
              hiddenimports=hiddenimports,
