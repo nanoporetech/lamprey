@@ -98,4 +98,4 @@ deb: pack
 dmg: pack
 	touch lamprey.dmg
 	rm lamprey*dmg
-	hdiutil create "$(APPNAME).dmg" -ov -volname "lamprey $(VERSION)" -format UDZO -imagekey zlib-level=9 -size 250M -fs HFS+ -srcfolder lamprey-Darwin-$(VERSION)
+	hdiutil create "$(APPNAME).dmg" -ov -volname "lamprey $(VERSION)" -format UDZO -imagekey zlib-level=9 -size 250M -fs HFS+ -srcfolder $(APPNAME)

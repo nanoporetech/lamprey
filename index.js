@@ -15,8 +15,8 @@ const basePort      = 28320
 const osUtil        = require("./js/osutil")
 const osutil        = new osUtil({log:bunyan.createLogger({name:"main"})})
 
-process.env.DYLD_LIBRARY_PATH = ['$DYLD_LIBRARY_PATH', path.join(__dirname, 'dist/api')].join(':')
-console.log(process.env.DYLD_LIBRARY_PATH);
+process.env.DYLD_LIBRARY_PATH = [(process.env.DYLD_LIBRARY_PATH||'').split(':'), path.join(__dirname, 'dist/api')].join(':')
+
 var opts = getopt.create([
     ["h", "help",            "This help"],
     ["i", "input=ARG",       "Input folder"],
