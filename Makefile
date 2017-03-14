@@ -16,19 +16,17 @@ ifeq ($(OS),Windows_NT)
     OS = win
 else
     OS := $(shell uname -s)
-    ifeq ($(UNAME_S),Linux)
-        OS = linux
+    ifeq ($(OS),Linux)
+        OS := linux
     endif
-    ifeq ($(UNAME_S),Darwin)
-        OS = mac
+    ifeq ($(OS),Darwin)
+        OS := mac
     endif
 endif
 
 APPNAME ?= lamprey-$(OS)-$(VERSION)
 #OSX_TEAM_ID=
 #OSX_BUNDLE_ID=LJKTDEZN58
-
-
 
 
 all: $(OS)
@@ -100,4 +98,4 @@ deb: pack
 dmg: pack
 	touch lamprey.dmg
 	rm lamprey*dmg
-	hdiutil create "lamprey-$(VERSION).dmg" -ov -volname "lamprey $(VERSION)" -format UDZO -imagekey zlib-level=9 -size 250M -fs HFS+ -srcfolder lamprey-Darwin-$(VERSION)
+	hdiutil create "$(APPNAME).dmg" -ov -volname "lamprey $(VERSION)" -format UDZO -imagekey zlib-level=9 -size 250M -fs HFS+ -srcfolder lamprey-Darwin-$(VERSION)

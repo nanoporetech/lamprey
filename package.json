@@ -1,21 +1,22 @@
 {
-    "name": "lamprey",
-    "version": "0.1.1",
-    "scripts": {
-	"start": "electron .",
-	"flow": "flow; test $? -eq 0 -o $? -eq 2"
-    },
-    "devDependencies": {
-	"electron": "^1.6.1",
-	"electron-packager": "^8.5.2",
-	"flow-bin": "^0.41.0"
-    },
-    "dependencies": {
-	"bunyan": "^1.8.5",
-	"chokidar": "^1.6.1",
-	"node-getopt": "^0.2.3",
-	"node-notifier": "^5.0.2",
-	"queue": "^4.2.1",
-	"zerorpc": "^0.9.7"
-    }
+  "name": "lamprey",
+  "version": "0.1.1",
+  "scripts": {
+    "start": "electron .",
+    "flow": "flow; test $? -eq 0 -o $? -eq 2"
+  },
+  "devDependencies": {
+    "babel-plugin-transform-flow-strip-types": "^6.22.0",
+    "electron": "^1.6.1",
+    "electron-packager": "^8.5.2",
+    "flow-bin": "^0.41.0"
+  },
+  "dependencies": {
+    "bunyan": "^1.8.5",
+    "chokidar": "^1.6.1",
+    "node-getopt": "^0.2.3",
+    "node-notifier": "^5.0.2",
+    "queue": "^4.2.1",
+    "zerorpc": "^0.9.7"
+  }
 }
