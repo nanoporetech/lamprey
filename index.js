@@ -11,7 +11,7 @@ const app           = electron.app
 const Menu          = electron.Menu
 const BrowserWindow = electron.BrowserWindow
 const basePort      = 28320
-const osUtil        = require("./osutil")
+const osUtil        = require("./js/osutil")
 const osutil        = new osUtil({log:bunyan.createLogger({name:"main"})})
 
 var opts = getopt.create([
