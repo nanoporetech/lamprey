@@ -40,7 +40,7 @@ win:
 
 clean:
 	touch node_modules
-	rm -rf ~/.node-gyp ~/.electron-gyp ./node_modules lamprey-* include lib .Python pip-selfcheck.json bin build externals/nanonet
+	rm -rf *deb *dmg *exe *msi tmp ~/.node-gyp ~/.electron-gyp ./node_modules lamprey-* include lib .Python pip-selfcheck.json bin build externals/nanonet
 
 deps_mac:
 	brew install zmq
@@ -75,6 +75,7 @@ pack: deps
 	touch lamprey-darwin-x64
 	rm -rf lamprey-*
 	./node_modules/.bin/electron-packager . --icon="assets/lamprey512x512" --overwrite --appBundleId="com.nanoporetech.lamprey"
+	rm -rf lamprey-*/resources/app/tools lamprey-*/resources/app/externals
 	mv lamprey-* $(APPNAME)
 
 #sign:
