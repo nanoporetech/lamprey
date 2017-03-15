@@ -42,7 +42,7 @@ const log = (str) => {
 }
 
 /* consumer/handoff for each child process */
-log("detected", opts.options.concurrency, "logical cpus")
+log(`using ${opts.options.concurrency} logical cpus`)
 for (var i = 0; i < opts.options.concurrency; i+= 1) {
     let consumer = new Consumer({
 	id: i,

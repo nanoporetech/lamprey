@@ -9,7 +9,7 @@ MAJOR   ?= $(shell jq -r '.version' < package.json | cut -d . -f 1)
 MINOR   ?= $(shell jq -r '.version' < package.json | cut -d . -f 2)
 SUB     ?= $(shell jq -r '.version' < package.json | cut -d . -f 3)
 PATCH   ?= 1
-VERSION = $(MAJOR).$(MINOR).$(SUB).$(PATCH)
+VERSION = $(MAJOR).$(MINOR).$(SUB)-$(PATCH)
 OS      ?= $(shell uname -s)
 WORKING ?= $(shell mktemp -d)
 LDFLAGS  = -L$(WORKING)/lib
@@ -40,7 +40,7 @@ mac: dmg
 linux: deb
 
 win:
-	echo "working on it"
+	$(info windows build not yet available)
 
 clean:
 	touch node_modules
