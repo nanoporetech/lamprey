@@ -16,19 +16,17 @@ ifeq ($(OS),Windows_NT)
     OS = win
 else
     OS := $(shell uname -s)
-    ifeq ($(UNAME_S),Linux)
-        OS = linux
+    ifeq ($(OS),Linux)
+        OS := linux
     endif
-    ifeq ($(UNAME_S),Darwin)
-        OS = mac
+    ifeq ($(OS),Darwin)
+        OS := mac
     endif
 endif
 
 APPNAME ?= lamprey-$(OS)-$(VERSION)
 #OSX_TEAM_ID=
 #OSX_BUNDLE_ID=LJKTDEZN58
-
-
 
 
 all: $(OS)
@@ -42,7 +40,7 @@ win:
 
 clean:
 	touch node_modules
-	rm -rf ~/.node-gyp ~/.electron-gyp ./node_modules lamprey-* include lib .Python pip-selfcheck.json bin build externals/nanonet
+	rm -rf *deb *dmg *exe *msi tmp ~/.node-gyp ~/.electron-gyp ./node_modules lamprey-* include lib .Python pip-selfcheck.json bin build externals/nanonet
 
 deps_mac:
 	brew install zmq
@@ -77,6 +75,7 @@ pack: deps
 	touch lamprey-darwin-x64
 	rm -rf lamprey-*
 	./node_modules/.bin/electron-packager . --icon="assets/lamprey512x512" --overwrite --appBundleId="com.nanoporetech.lamprey"
+	rm -rf lamprey-*/resources/app/tools lamprey-*/resources/app/externals lamprey-*/resources/app/build
 	mv lamprey-* $(APPNAME)
 
 #sign:
@@ -100,4 +99,4 @@ deb: pack
 dmg: pack
 	touch lamprey.dmg
 	rm lamprey*dmg
-	hdiutil create "lamprey-$(VERSION).dmg" -ov -volname "lamprey $(VERSION)" -format UDZO -imagekey zlib-level=9 -size 250M -fs HFS+ -srcfolder lamprey-Darwin-$(VERSION)
+	hdiutil create "$(APPNAME).dmg" -ov -volname "lamprey $(VERSION)" -format UDZO -imagekey zlib-level=9 -size 250M -fs HFS+ -srcfolder $(APPNAME)

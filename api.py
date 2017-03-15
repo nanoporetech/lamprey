@@ -1,4 +1,4 @@
-from __future__ import print_function
+#from __future__ import print_function
 # import UserList just to make the compiler happy
 from future.moves.collections import UserList
 
@@ -10,13 +10,16 @@ class RunnerApi(object):
     def process_read(self, filename, modelname):
         """basecall a given file (filepath) with a given model (filepath)"""
         try:
+            print "process_read %s %s" % (modelname, filename)
             result = process_read(modelname, filename, section="template")
             if result is not None:
                 [(fname, (seq, qual), score, len_features), (network_time, decode_time)] = result
                 fastq = "@{}\n{}\n+\n{}\n".format(fname, seq, qual)
                 return [fastq]
+            print "result: none"
             return []
         except Exception as e:
+            print "exception %s" % str(e)
             return [None, str(e)]
     def echo(self, text):
         """echo any text"""

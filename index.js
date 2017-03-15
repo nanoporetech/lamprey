@@ -2,7 +2,8 @@
  * Copyright (c) 2017 Oxford Nanopore Technologies Ltd.
  * Author: rmp
  */
-/*global require, module */
+/*global process, require, module */
+
 const electron      = require('electron')
 const path          = require('path')
 const getopt        = require('node-getopt')
@@ -11,8 +12,10 @@ const app           = electron.app
 const Menu          = electron.Menu
 const BrowserWindow = electron.BrowserWindow
 const basePort      = 28320
-const osUtil        = require("./osutil")
+const osUtil        = require("./js/osutil")
 const osutil        = new osUtil({log:bunyan.createLogger({name:"main"})})
+
+process.env.DYLD_LIBRARY_PATH = [(process.env.DYLD_LIBRARY_PATH||'').split(':'), path.join(__dirname, 'dist/api')].join(':')
 
 var opts = getopt.create([
     ["h", "help",            "This help"],
@@ -189,7 +192,7 @@ const cpuCheck = () => {
     osutil.procs((err, logical) => {
 	if(err) {
 	    console.log("error discovering logical cpus", err)
-	    opts.options.concurrency = 4
+	    opts.options.concurrency = 1
 	    return createPyProc()
 	}
 	console.log(logical, "logical cpus detected")

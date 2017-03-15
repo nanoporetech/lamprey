@@ -5,6 +5,7 @@ bin/
 include/
 lib/
 lamprey-*
+ont-lamprey-*
 node_modules/
 pip-selfcheck.json
 dist/
