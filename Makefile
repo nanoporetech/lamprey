@@ -11,6 +11,7 @@ SUB     ?= $(shell jq -r '.version' < package.json | cut -d . -f 3)
 PATCH   ?= 1
 VERSION = $(MAJOR).$(MINOR).$(SUB).$(PATCH)
 OS      ?= $(shell uname -s)
+WORKING ?= $(shell mktemp -d)
 
 ifeq ($(OS),Windows_NT)
     OS = win
@@ -64,9 +65,10 @@ py: deps_py
 	PATH=$(HOME)/.local/bin:$(HOME)/Library/Python/2.7/bin:$(PATH) pyinstaller --clean --log-level DEBUG api.spec
 
 deps_linux:
+	touch zeromq-4.2.2.tar.gz && rm zeromq-4.2.2*
 	wget https://github.com/zeromq/libzmq/releases/download/v4.2.2/zeromq-4.2.2.tar.gz
 	tar -xzvf zeromq-4.2.2.tar.gz
-	(cd zeromq-4.2.2 && ./configure && $(MAKE) install)
+	(cd zeromq-4.2.2 && ./configure --prefix=$(WORKING) && $(MAKE) install)
 
 deps_mac:
 	echo "nothing to do"
