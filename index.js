@@ -18,8 +18,6 @@ const osutil        = new osUtil({log:bunyan.createLogger({name:"main"})})
 let dyld = ""
 if (process.platform === "darwin") {
     dyld = 'DYLD_LIBRARY_PATH'
-} else if (process.platform === "linux") {
-    dyld = 'LD_LIBRARY_PATH'
 }
 
 if(dyld) {
