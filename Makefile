@@ -13,8 +13,7 @@ VERSION = $(MAJOR).$(MINOR).$(SUB)-$(PATCH)
 OS      ?= $(shell uname -s)
 WORKING ?= $(shell mktemp -d)
 LDFLAGS  = -L$(WORKING)/lib
-CFLAGS   = -I$(WORKING)/include
-CXX      = g++ $(CFLAGS) $(LDFLAGS)
+CXXFLAGS = -I$(WORKING)/include
 
 ifeq ($(OS),Windows_NT)
     OS = win
@@ -44,7 +43,7 @@ win:
 
 clean:
 	touch node_modules
-	rm -rf *deb *dmg *exe *msi tmp ~/.node-gyp ~/.electron-gyp ./node_modules lamprey-* include lib .Python pip-selfcheck.json bin build externals/nanonet
+	rm -rf *deb *dmg *exe *msi dist tmp ~/.node-gyp ~/.electron-gyp ./node_modules lamprey-* include lib .Python pip-selfcheck.json bin build externals/nanonet
 
 deps_js:
 	CXXFLAGS=$(CXXFLAGS) LDFLAGS=$(LDFLAGS) npm_config_target=$(npm_config_target) npm_config_arch=$(npm_config_arch) npm_config_target_arch=$(npm_config_target_arch) npm_config_disturl=$(npm_config_disturl) npm_config_runtime=$(npm_config_runtime) npm_config_build_from_source=$(npm_config_build_from_source) npm install
