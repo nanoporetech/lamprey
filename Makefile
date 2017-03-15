@@ -9,8 +9,11 @@ MAJOR   ?= $(shell jq -r '.version' < package.json | cut -d . -f 1)
 MINOR   ?= $(shell jq -r '.version' < package.json | cut -d . -f 2)
 SUB     ?= $(shell jq -r '.version' < package.json | cut -d . -f 3)
 PATCH   ?= 1
-VERSION = $(MAJOR).$(MINOR).$(SUB).$(PATCH)
+VERSION = $(MAJOR).$(MINOR).$(SUB)-$(PATCH)
 OS      ?= $(shell uname -s)
+WORKING ?= $(shell mktemp -d)
+LDFLAGS  = -L$(WORKING)/lib
+CXXFLAGS = -I$(WORKING)/include
 
 ifeq ($(OS),Windows_NT)
     OS = win
@@ -36,20 +39,18 @@ mac: dmg
 linux: deb
 
 win:
-	echo "working on it"
+	$(info windows build not yet available)
 
 clean:
 	touch node_modules
-	rm -rf *deb *dmg *exe *msi tmp ~/.node-gyp ~/.electron-gyp ./node_modules lamprey-* include lib .Python pip-selfcheck.json bin build externals/nanonet
-
-deps_mac:
-	brew install zmq
+	rm -rf *deb *dmg *exe *msi dist tmp ~/.node-gyp ~/.electron-gyp ./node_modules lamprey-* include lib .Python pip-selfcheck.json bin build externals/nanonet
 
 deps_js:
-	npm_config_target=$(npm_config_target) npm_config_arch=$(npm_config_arch) npm_config_target_arch=$(npm_config_target_arch) npm_config_disturl=$(npm_config_disturl) npm_config_runtime=$(npm_config_runtime) npm_config_build_from_source=$(npm_config_build_from_source) npm install
+	CXXFLAGS=$(CXXFLAGS) LDFLAGS=$(LDFLAGS) npm_config_target=$(npm_config_target) npm_config_arch=$(npm_config_arch) npm_config_target_arch=$(npm_config_target_arch) npm_config_disturl=$(npm_config_disturl) npm_config_runtime=$(npm_config_runtime) npm_config_build_from_source=$(npm_config_build_from_source) npm install
 
 deps_py:
-	pip install --user zerorpc pyinstaller pyzmq
+	pip install --user pyzmq --install-option="--zmq=$(WORKING)"
+	pip install --user zerorpc pyinstaller
 	$(MAKE) deps_py_$(OS)
 
 deps_py_linux:
@@ -66,16 +67,32 @@ py: deps_py
 	rm -rf dist
 	PATH=$(HOME)/.local/bin:$(HOME)/Library/Python/2.7/bin:$(PATH) pyinstaller --clean --log-level DEBUG api.spec
 
+deps_linux:
+ifeq ("$(wildcard $(WORKING)/include/zmq.h)","")
+	(cd $(WORKING) && wget https://github.com/zeromq/libzmq/releases/download/v4.2.2/zeromq-4.2.2.tar.gz && tar -xzvf zeromq-4.2.2.tar.gz && cd zeromq-4.2.2 && ./configure --prefix=$(WORKING) && $(MAKE) install)
+else
+	$(info deps_linux already has $(WORKING)/include/zmq.h)
+endif
+
+deps_mac:
+	$(info nothing to do for deps_mac)
+
+deps_win:
+	$(info nothing to do for deps_win)
+
 deps: clean
 	git submodule update --init --recursive
-	$(MAKE) deps_js deps_py
+	$(MAKE) deps_$(OS) deps_js deps_py
 
 pack: deps
 	$(MAKE) py
 	touch lamprey-darwin-x64
 	rm -rf lamprey-*
 	./node_modules/.bin/electron-packager . --icon="assets/lamprey512x512" --overwrite --appBundleId="com.nanoporetech.lamprey"
-	rm -rf lamprey-*/resources/app/tools lamprey-*/resources/app/externals lamprey-*/resources/app/build
+ifeq ($(OS),linux)
+	cp dist/api/libzmq.so.5 lamprey-*/
+endif
+	rm -rf lamprey-*/resources/app/tools lamprey-*/resources/app/build
 	mv lamprey-* $(APPNAME)
 
 #sign:

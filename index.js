@@ -15,7 +15,15 @@ const basePort      = 28320
 const osUtil        = require("./js/osutil")
 const osutil        = new osUtil({log:bunyan.createLogger({name:"main"})})
 
-process.env.DYLD_LIBRARY_PATH = [(process.env.DYLD_LIBRARY_PATH||'').split(':'), path.join(__dirname, 'dist/api')].join(':')
+let dyld = ""
+if (process.platform === "darwin") {
+    dyld = 'DYLD_LIBRARY_PATH'
+}
+
+if(dyld) {
+    process.env[dyld] = [process.env[dyld] ? (process.env[dyld].split(':')) : [], path.join(__dirname, 'dist/api')].join(':')
+    console.log("Set", dyld, "to", process.env[dyld]);
+}
 
 var opts = getopt.create([
     ["h", "help",            "This help"],

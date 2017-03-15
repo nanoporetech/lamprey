@@ -1,3 +1,5 @@
+npm-debug.log
+*.tar.gz
 __pycache__
 .DS_Store
 .Python
@@ -13,3 +15,4 @@ build
 .node-gyp
 lamprey.log
 out.fastq
+tmp

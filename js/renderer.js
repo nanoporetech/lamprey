@@ -8,12 +8,13 @@ const chokidar  = require("chokidar")
 const path      = require("path")
 const bunyan    = require('bunyan')
 const fs        = require("fs")
-const Consumer  = require('./consumer')
 const notifier  = require('node-notifier')
 const electron  = require('electron')
 const remote    = electron.remote
 const IPC       = electron.ipcRenderer
+const Consumer  = require('./consumer')
 const loglines  = 16
+
 let menu        = remote.Menu.getApplicationMenu()
 let opts        = remote.getCurrentWindow().opts
 let concurrency = opts.options.concurrency ? opts.options.concurrency : 1
@@ -42,7 +43,7 @@ const log = (str) => {
 }
 
 /* consumer/handoff for each child process */
-log("detected", opts.options.concurrency, "logical cpus")
+log(`using ${opts.options.concurrency} logical cpus`)
 for (var i = 0; i < opts.options.concurrency; i+= 1) {
     let consumer = new Consumer({
 	id: i,
