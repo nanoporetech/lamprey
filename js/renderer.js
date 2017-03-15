@@ -12,21 +12,8 @@ const notifier  = require('node-notifier')
 const electron  = require('electron')
 const remote    = electron.remote
 const IPC       = electron.ipcRenderer
-const loglines  = 16
-
-let dyld = ""
-if (process.platform === "darwin") {
-    dyld = 'DYLD_LIBRARY_PATH'
-} else if (process.platform === "linux") {
-    dyld = 'LD_LIBRARY_PATH'
-}
-
-if(dyld) {
-    process.env[dyld] = [(process.env[dyld]||'').split(':'), path.join(__dirname, 'dist/api')].join(':')
-    console.log("Set", dyld, "to", process.env[dyld]);
-}
-
 const Consumer  = require('./consumer')
+const loglines  = 16
 
 let menu        = remote.Menu.getApplicationMenu()
 let opts        = remote.getCurrentWindow().opts
