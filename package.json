@@ -2,6 +2,10 @@
   "name": "lamprey",
   "version": "0.1.2",
   "license" : "MPL-2.0",
+  "repository" : {
+    "type" : "git",
+    "url" : "https://github.com/nanoporetech/lamprey.git"
+  },
   "scripts": {
     "start": "electron ."
   },

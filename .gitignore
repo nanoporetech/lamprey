@@ -13,3 +13,4 @@ build
 .node-gyp
 lamprey.log
 out.fastq
+tmp

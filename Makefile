@@ -42,9 +42,6 @@ clean:
 	touch node_modules
 	rm -rf *deb *dmg *exe *msi tmp ~/.node-gyp ~/.electron-gyp ./node_modules lamprey-* include lib .Python pip-selfcheck.json bin build externals/nanonet
 
-deps_mac:
-	brew install zmq
-
 deps_js:
 	npm_config_target=$(npm_config_target) npm_config_arch=$(npm_config_arch) npm_config_target_arch=$(npm_config_target_arch) npm_config_disturl=$(npm_config_disturl) npm_config_runtime=$(npm_config_runtime) npm_config_build_from_source=$(npm_config_build_from_source) npm install
 
@@ -66,9 +63,22 @@ py: deps_py
 	rm -rf dist
 	PATH=$(HOME)/.local/bin:$(HOME)/Library/Python/2.7/bin:$(PATH) pyinstaller --clean --log-level DEBUG api.spec
 
+deps_linux:
+	wget https://github.com/zeromq/libzmq/releases/download/v4.2.2/zeromq-4.2.2.tar.gz
+	tar -czvf zeromq-4.2.2.tar.gz
+	cd zeromq-4.2.2
+	./configure
+	$(MAKE) install
+
+deps_mac:
+	echo "nothing to do"
+
+deps_win:
+	echo "nothing to do"
+
 deps: clean
 	git submodule update --init --recursive
-	$(MAKE) deps_js deps_py
+	$(MAKE) deps_$(OS) deps_js deps_py
 
 pack: deps
 	$(MAKE) py
