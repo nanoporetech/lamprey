@@ -12,7 +12,9 @@ PATCH   ?= 1
 VERSION = $(MAJOR).$(MINOR).$(SUB).$(PATCH)
 OS      ?= $(shell uname -s)
 WORKING ?= $(shell mktemp -d)
-CXX      = g++ -I$(WORKING)/include -L$(WORKING)/lib
+LDFLAGS  = -L$(WORKING)/lib
+CFLAGS   = -I$(WORKING)/include
+CXX      = g++ $(CFLAGS) $(LDFLAGS)
 
 ifeq ($(OS),Windows_NT)
     OS = win
@@ -48,7 +50,8 @@ deps_js:
 	npm_config_target=$(npm_config_target) npm_config_arch=$(npm_config_arch) npm_config_target_arch=$(npm_config_target_arch) npm_config_disturl=$(npm_config_disturl) npm_config_runtime=$(npm_config_runtime) npm_config_build_from_source=$(npm_config_build_from_source) npm install
 
 deps_py:
-	pip install --user zerorpc pyinstaller pyzmq
+	pip install --user pyzmq --install-option="--zmq=$(WORKING)"
+	pip install --user zerorpc pyinstaller
 	$(MAKE) deps_py_$(OS)
 
 deps_py_linux:
@@ -72,7 +75,7 @@ ifeq ("$(wildcard $(WORKING)/include/zmq.h)","")
 	tar -xzvf zeromq-4.2.2.tar.gz
 	(cd zeromq-4.2.2 && ./configure --prefix=$(WORKING) && $(MAKE) install)
 else
-	$(info nothing to do for deps_linux)
+	$(info deps_linux already has $(WORKING)/include/zmq.h)
 endif
 
 deps_mac:
