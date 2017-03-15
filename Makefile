@@ -66,16 +66,20 @@ py: deps_py
 	PATH=$(HOME)/.local/bin:$(HOME)/Library/Python/2.7/bin:$(PATH) pyinstaller --clean --log-level DEBUG api.spec
 
 deps_linux:
+ifeq ("$(wildcard $(WORKING)/include/zmq.h)","")
 	touch zeromq-4.2.2.tar.gz && rm -rf zeromq-4.2.2*
 	wget https://github.com/zeromq/libzmq/releases/download/v4.2.2/zeromq-4.2.2.tar.gz
 	tar -xzvf zeromq-4.2.2.tar.gz
 	(cd zeromq-4.2.2 && ./configure --prefix=$(WORKING) && $(MAKE) install)
+else
+	$(info nothing to do for deps_linux)
+endif
 
 deps_mac:
-	echo "nothing to do"
+	$(info nothing to do for deps_mac)
 
 deps_win:
-	echo "nothing to do"
+	$(info nothing to do for deps_win)
 
 deps: clean
 	git submodule update --init --recursive
