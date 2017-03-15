@@ -92,7 +92,7 @@ pack: deps
 ifeq ($(OS),linux)
 	cp dist/api/libzmq.so.5 lamprey-*/
 endif
-	rm -rf lamprey-*/resources/app/tools lamprey-*/resources/app/externals lamprey-*/resources/app/build
+	rm -rf lamprey-*/resources/app/tools lamprey-*/resources/app/build
 	mv lamprey-* $(APPNAME)
 
 #sign:
