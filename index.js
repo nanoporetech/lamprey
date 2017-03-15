@@ -24,6 +24,7 @@ if (process.platform === "darwin") {
 
 if(dyld) {
     process.env[dyld] = [(process.env[dyld]||'').split(':'), path.join(__dirname, 'dist/api')].join(':')
+    console.log("Set", dyld, "to", process.env[dyld]);
 }
 
 var opts = getopt.create([
