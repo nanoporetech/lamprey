@@ -47,7 +47,7 @@ clean:
 	rm -rf *deb *dmg *exe *msi tmp ~/.node-gyp ~/.electron-gyp ./node_modules lamprey-* include lib .Python pip-selfcheck.json bin build externals/nanonet
 
 deps_js:
-	npm_config_target=$(npm_config_target) npm_config_arch=$(npm_config_arch) npm_config_target_arch=$(npm_config_target_arch) npm_config_disturl=$(npm_config_disturl) npm_config_runtime=$(npm_config_runtime) npm_config_build_from_source=$(npm_config_build_from_source) npm install
+	CXXFLAGS=$(CXXFLAGS) LDFLAGS=$(LDFLAGS) npm_config_target=$(npm_config_target) npm_config_arch=$(npm_config_arch) npm_config_target_arch=$(npm_config_target_arch) npm_config_disturl=$(npm_config_disturl) npm_config_runtime=$(npm_config_runtime) npm_config_build_from_source=$(npm_config_build_from_source) npm install
 
 deps_py:
 	pip install --user pyzmq --install-option="--zmq=$(WORKING)"
