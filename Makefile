@@ -70,9 +70,7 @@ py: deps_py
 
 deps_linux:
 ifeq ("$(wildcard $(WORKING)/include/zmq.h)","")
-	(cd $(WORKING) && wget https://github.com/zeromq/libzmq/releases/download/v4.2.2/zeromq-4.2.2.tar.gz)
-	(cd $(WORKING) && tar -xzvf zeromq-4.2.2.tar.gz)
-	(cd $(WORKING)/zeromq-4.2.2 && ./configure --prefix=$(WORKING) && $(MAKE) install)
+	(cd $(WORKING) && wget https://github.com/zeromq/libzmq/releases/download/v4.2.2/zeromq-4.2.2.tar.gz && tar -xzvf zeromq-4.2.2.tar.gz && cd zeromq-4.2.2 && ./configure --prefix=$(WORKING) && $(MAKE) install)
 else
 	$(info deps_linux already has $(WORKING)/include/zmq.h)
 endif
