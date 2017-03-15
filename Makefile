@@ -12,6 +12,7 @@ PATCH   ?= 1
 VERSION = $(MAJOR).$(MINOR).$(SUB).$(PATCH)
 OS      ?= $(shell uname -s)
 WORKING ?= $(shell mktemp -d)
+CXX      = g++ -I$(WORKING)/include -L$(WORKING)/lib
 
 ifeq ($(OS),Windows_NT)
     OS = win
@@ -65,7 +66,7 @@ py: deps_py
 	PATH=$(HOME)/.local/bin:$(HOME)/Library/Python/2.7/bin:$(PATH) pyinstaller --clean --log-level DEBUG api.spec
 
 deps_linux:
-	touch zeromq-4.2.2.tar.gz && rm zeromq-4.2.2*
+	touch zeromq-4.2.2.tar.gz && rm -rf zeromq-4.2.2*
 	wget https://github.com/zeromq/libzmq/releases/download/v4.2.2/zeromq-4.2.2.tar.gz
 	tar -xzvf zeromq-4.2.2.tar.gz
 	(cd zeromq-4.2.2 && ./configure --prefix=$(WORKING) && $(MAKE) install)
