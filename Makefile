@@ -65,7 +65,7 @@ py: deps_py
 
 deps_linux:
 	wget https://github.com/zeromq/libzmq/releases/download/v4.2.2/zeromq-4.2.2.tar.gz
-	tar -czvf zeromq-4.2.2.tar.gz
+	tar -xzvf zeromq-4.2.2.tar.gz
 	cd zeromq-4.2.2
 	./configure
 	$(MAKE) install
