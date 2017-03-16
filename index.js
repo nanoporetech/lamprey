@@ -60,7 +60,7 @@ let mainWindow = null
 const createWindow = () => {
     mainWindow = new BrowserWindow({
 	width: 1000,
-	height: 400,
+	height: 440,
 	resizable: opts.options.debug ? true : false
     })
 
@@ -100,7 +100,7 @@ const createWindow = () => {
 		},
 		{
 		    label: 'Quit',
-		    accelerator: "Command+Q", 
+		    accelerator: "Command+Q",
 		    click: () => {
 			app.quit()
 		    }
