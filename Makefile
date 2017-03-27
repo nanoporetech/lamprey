@@ -88,7 +88,7 @@ pack: deps
 	$(MAKE) py
 	touch lamprey-darwin-x64
 	rm -rf lamprey-*
-	./node_modules/.bin/electron-packager . --icon="assets/lamprey512x512" --overwrite --appBundleId="com.nanoporetech.lamprey"
+	./node_modules/.bin/electron-packager . --icon="assets/lamprey" --overwrite --appBundleId="com.nanoporetech.lamprey"
 ifeq ($(OS),linux)
 	cp dist/api/libzmq.so.5 lamprey-*/
 endif
