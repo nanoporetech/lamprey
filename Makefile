@@ -32,7 +32,14 @@ APPNAME ?= lamprey-$(OS)-$(VERSION)
 #OSX_BUNDLE_ID=LJKTDEZN58
 
 
-all: $(OS)
+all: check $(OS)
+
+check:
+	@jq      -h >/dev/null && echo "jq installed"     || echo "jq not installed"
+	@node    -h >/dev/null && echo "node installed"   || echo "node not installed"
+	@python  -h >/dev/null && echo "python installed" || echo "python not installed"
+	@pip     -h >/dev/null && echo "pip installed"    || echo "pip not installed"
+	@git --help >/dev/null && echo "git installed"    || echo "git not installed"
 
 mac: dmg
 
