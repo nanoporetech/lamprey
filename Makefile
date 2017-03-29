@@ -14,6 +14,7 @@ OS      ?= $(shell uname -s)
 WORKING ?= $(shell mktemp -d)
 LDFLAGS  = -L$(WORKING)/lib
 CXXFLAGS = -I$(WORKING)/include
+TOOLING  = jq node python pip git
 WHICH    = which
 
 ifeq ($(OS),Windows_NT)
@@ -23,9 +24,11 @@ else
     OS := $(shell uname -s)
     ifeq ($(OS),Linux)
         OS := linux
+	TOOLING += fakeroot perl
     endif
     ifeq ($(OS),Darwin)
         OS := mac
+	TOOLING += hdiutil codesign
     endif
 endif
 
@@ -33,10 +36,12 @@ APPNAME ?= lamprey-$(OS)-$(VERSION)
 #OSX_TEAM_ID=
 #OSX_BUNDLE_ID=LJKTDEZN58
 
-TOOLING       := jq node python pip git
 TOOLING_CHECK := $(foreach exec,$(TOOLING),$(if $(shell $(WHICH) $(exec)),"$(exec) available\n",$(error "$(exec) unavailable")))
 
 all: $(OS)
+
+check:
+	@echo " "$(TOOLING_CHECK);
 
 mac: dmg
 
