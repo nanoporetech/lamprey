@@ -14,9 +14,11 @@ OS      ?= $(shell uname -s)
 WORKING ?= $(shell mktemp -d)
 LDFLAGS  = -L$(WORKING)/lib
 CXXFLAGS = -I$(WORKING)/include
+WHICH    = which
 
 ifeq ($(OS),Windows_NT)
     OS = win
+    WHICH = where
 else
     OS := $(shell uname -s)
     ifeq ($(OS),Linux)
@@ -31,15 +33,10 @@ APPNAME ?= lamprey-$(OS)-$(VERSION)
 #OSX_TEAM_ID=
 #OSX_BUNDLE_ID=LJKTDEZN58
 
+TOOLING       := jq node python pip git
+TOOLING_CHECK := $(foreach exec,$(TOOLING),$(if $(shell $(WHICH) $(exec)),"$(exec) available\n",$(error "$(exec) unavailable")))
 
-all: check $(OS)
-
-check:
-	@jq      -h >/dev/null && echo "jq installed"     || echo "jq not installed"
-	@node    -h >/dev/null && echo "node installed"   || echo "node not installed"
-	@python  -h >/dev/null && echo "python installed" || echo "python not installed"
-	@pip     -h >/dev/null && echo "pip installed"    || echo "pip not installed"
-	@git --help >/dev/null && echo "git installed"    || echo "git not installed"
+all: $(OS)
 
 mac: dmg
 
