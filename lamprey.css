@@ -4,6 +4,10 @@ body {
     color: #fff;
 }
 
+#masthead {
+    height: 40px;
+}
+
 .progressContainer {
     width: 180px;
     height: 20px;

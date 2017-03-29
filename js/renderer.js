@@ -62,7 +62,7 @@ for (var i = 0; i < opts.options.concurrency; i+= 1) {
 	    let path    = job.path || ""
 	    avgTime     = ((successCount + failureCount) * avgTime + dTime) / (1 + successCount + failureCount)
 	    etaIndicator.innerHTML = etaDate().toLocaleString()
-	    
+
 	    if (error) {
 		log("error " + short_path(path))
 		log("message " + error)
@@ -70,7 +70,7 @@ for (var i = 0; i < opts.options.concurrency; i+= 1) {
 		failureCount++
 		return
 	    }
-	    
+
 	    let fastq   = res[0]
 	    let failure = res[1]
 
@@ -156,9 +156,10 @@ let counters     = {
     queued:  document.querySelector("#queuedCounter"),
 }
 const notify = (msg, title) => {
+
     return notifier.notify({
 	title: title ? title : "lamprey",
-	icon: path.join(__dirname, 'assets/lamprey80x80.png'),
+	icon: path.join(__dirname, '../assets/lamprey80x80.png'),
 	message: msg
     })
 }

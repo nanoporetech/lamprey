@@ -14,16 +14,21 @@ OS      ?= $(shell uname -s)
 WORKING ?= $(shell mktemp -d)
 LDFLAGS  = -L$(WORKING)/lib
 CXXFLAGS = -I$(WORKING)/include
+TOOLING  = jq node python pip git
+WHICH    = which
 
 ifeq ($(OS),Windows_NT)
     OS = win
+    WHICH = where
 else
     OS := $(shell uname -s)
     ifeq ($(OS),Linux)
         OS := linux
+	TOOLING += fakeroot perl
     endif
     ifeq ($(OS),Darwin)
         OS := mac
+	TOOLING += hdiutil codesign
     endif
 endif
 
@@ -31,8 +36,12 @@ APPNAME ?= lamprey-$(OS)-$(VERSION)
 #OSX_TEAM_ID=
 #OSX_BUNDLE_ID=LJKTDEZN58
 
+TOOLING_CHECK := $(foreach exec,$(TOOLING),$(if $(shell $(WHICH) $(exec)),"$(exec) available\n",$(error "$(exec) unavailable")))
 
 all: $(OS)
+
+check:
+	@echo " "$(TOOLING_CHECK);
 
 mac: dmg
 
@@ -88,7 +97,7 @@ pack: deps
 	$(MAKE) py
 	touch lamprey-darwin-x64
 	rm -rf lamprey-*
-	./node_modules/.bin/electron-packager . --icon="assets/lamprey512x512" --overwrite --appBundleId="com.nanoporetech.lamprey"
+	./node_modules/.bin/electron-packager . --icon="assets/lamprey" --overwrite --appBundleId="com.nanoporetech.lamprey"
 ifeq ($(OS),linux)
 	cp dist/api/libzmq.so.5 lamprey-*/
 endif

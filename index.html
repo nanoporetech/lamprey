@@ -3,49 +3,54 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>lamprey</title>
+    <title>Lamprey</title>
     <link rel="stylesheet" type="text/css" href="lamprey.css"/>
   </head>
   <body>
-    <div id="indicators">
-      <div id="states">
-	<div id="stateContainer"><div class="label">State: </div><div id="state"></div></div>
-	<div id="workProgress" class="progressContainer">
-	  <div class="label"></div>
-	  <!-- div class="progress"></div-->
-	  <div class="success"></div>
-	  <div class="failure"></div>
-	</div>
-	<div id="counterContainers">
-	  <div style="width: 180px; float: left">
-	    <div id="successContainer" class="counterContainer"><div class="label">Success: </div><div id="successCounter"></div></div>
-	    <div id="failureContainer" class="counterContainer"><div class="label">Failure: </div><div id="failureCounter"></div></div>
+    <header>
+      <image id="masthead" src="assets/lamprey_masthead.svg"></image>
+    </header>
+    <main>
+      <div id="indicators">
+        <div id="states">
+	  <div id="stateContainer"><div class="label">State: </div><div id="state"></div></div>
+	  <div id="workProgress" class="progressContainer">
+	    <div class="label"></div>
+	    <!-- div class="progress"></div-->
+	    <div class="success"></div>
+	    <div class="failure"></div>
 	  </div>
-	  <div style="width: 180px; float: left">
-	    <div id="totalContainer"   class="counterContainer"><div class="label">Total: </div><div id="totalCounter"></div></div>
-	    <div id="queuedContainer"  class="counterContainer"><div class="label">Queued: </div><div id="queuedCounter"></div></div>
+	  <div id="counterContainers">
+	    <div style="width: 180px; float: left">
+	      <div id="successContainer" class="counterContainer"><div class="label">Success: </div><div id="successCounter"></div></div>
+	      <div id="failureContainer" class="counterContainer"><div class="label">Failure: </div><div id="failureCounter"></div></div>
+	    </div>
+	    <div style="width: 180px; float: left">
+	      <div id="totalContainer"   class="counterContainer"><div class="label">Total: </div><div id="totalCounter"></div></div>
+	      <div id="queuedContainer"  class="counterContainer"><div class="label">Queued: </div><div id="queuedCounter"></div></div>
+	    </div>
+	    <div style="width: 200px; float: left">
+	      <div id="etaContainer"   class="counterContainer"><div class="label">ETA: </div><div id="etaCounter"></div></div>
+	    </div>
 	  </div>
-	  <div style="width: 200px; float: left">
-	    <div id="etaContainer"   class="counterContainer"><div class="label">ETA: </div><div id="etaCounter"></div></div>
-	  </div>
-	</div>
+        </div>
+        <div id="folderContainer">
+	  <div>Folder: </div>
+	  <div id="folders">unset</div>
+        </div>
       </div>
-      <div id="folderContainer">
-	<div>Folder: </div>
-	<div id="folders">unset</div>
+      <div id="actions">
+        <button id="setup">setup</button>
+        <button id="start">start</button>
+        <button id="stop">stop</button>
       </div>
-    </div>
-    <div id="actions">
-      <button id="setup">setup</button>
-      <button id="start">start</button>
-      <button id="stop">stop</button>
-    </div>
-    <div id="logContainer">
-      <fieldset>
-	<legend>Details</legend>
-	<pre id="log"></pre>
-      </fieldset>
-    </div>
+      <div id="logContainer">
+        <fieldset>
+	  <legend>Details</legend>
+	  <pre id="log"></pre>
+        </fieldset>
+      </div>
+    </main>
   </body>
   <script>
    require('./js/renderer.js')
