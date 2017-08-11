@@ -1,4 +1,4 @@
-image: docker-registry.oxfordnanolabs.local:5000/ont-base-ubuntu:14.04
+image: $DOCKER_IMAGE
 
 variables:
   PATCH: $CI_BUILD_ID
